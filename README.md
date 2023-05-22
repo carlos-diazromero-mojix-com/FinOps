@@ -1,1 +1,2 @@
-# FinOps-1
+# FinOps
+
