@@ -51,7 +51,7 @@ environment = 'YT1'
 df_mongo_yt1 = spark.read.format('bigquery').option('project','saas-analytics-io').option('table','raw.yt1_mongodb_collection').option("filter","date between '%s 00:00:00' and '%s 23:59:59' "%(str_day_process,str_day_process)).load()
 
 df_mongo_yt1 = df_mongo_yt1.withColumn("environment",lit(environment))
-df_mongo_yt1 = df_mongo_yt1.withColumn('date_normalized', to_date(col("date")))
+df_mongo_yt1 = df_mongo_yt1.withColumn('date_normalized', date_format(to_date(col("date")),"yyyy-MM-dd"))
 df_mongo_agg = df_mongo_yt1.groupBy(['date_normalized','tenant','real_name','environment']).agg(_sum('size_db').alias('size_db'),_sum('size_storage').alias('size_storage'),_sum('size_index').alias('size_index'))
 
 
@@ -124,7 +124,7 @@ GCP_cost_table_agg = GCP_cost_table.groupBy(['usage_start_time']).agg(_sum('stor
 
 df_cost_storage_gcp = GCP_cost_table.groupBy(['usage_start_time','sku_description']).agg(_sum('storage_cost').alias('daily_storage_cost_sum'),_sum('storage_discount').alias('daily_storage_discount_sum'),_sum('total_storage_after_discount').alias('daily_storage_after_discount_sum'))
 
-df_cost_storage_gcp = df_cost_storage_gcp.withColumn('date_normalized', to_date(from_utc_timestamp(col("usage_start_time"),"America/Los_Angeles")))
+df_cost_storage_gcp = df_cost_storage_gcp.withColumn('date_normalized', date_format(to_date(from_utc_timestamp(col("usage_start_time"),"America/Los_Angeles")),"yyyy-MM-dd"))
 
 df_cost_storage_gcp_agg = df_cost_storage_gcp.filter((df_cost_storage_gcp['date_normalized']==str_day_process)).groupBy(['date_normalized']).agg(_sum('daily_storage_cost_sum').alias('daily_storage_cost_sum'), _sum('daily_storage_discount_sum').alias('daily_storage_discount_sum'),_sum('daily_storage_after_discount_sum').alias('daily_storage_after_discount_sum'))
 
@@ -169,8 +169,8 @@ environment = 'VT1'
 df_mongo_vt1 = spark.read.format('bigquery').option('project','saas-analytics-io').option('table','raw.vt1_mongodb_collection').option("filter","date between '%s 00:00:00' and '%s 23:59:59' "%(str_day_process,str_day_process)).load()
 
 df_mongo_vt1 = df_mongo_vt1.withColumn("environment",lit(environment))
-df_mongo_vt1 = df_mongo_vt1.withColumn('date_normalized', to_date(col("date")))
-df_mongo_agg = df_mongo_vt1.groupBy(['date_normalized','tenant','real_name','environment'])                        .agg(_sum('size_db').alias('size_db'),                         _sum('size_storage').alias('size_storage'),                         _sum('size_index').alias('size_index'))
+df_mongo_vt1 = df_mongo_vt1.withColumn('date_normalized', date_format(to_date(col("date")),"yyyy-MM-dd"))
+df_mongo_agg = df_mongo_vt1.groupBy(['date_normalized','tenant','real_name','environment']).agg(_sum('size_db').alias('size_db'),_sum('size_storage').alias('size_storage'),_sum('size_index').alias('size_index'))
 
 
 # ### VT1 Storage Cost Extraction - GCP
@@ -242,7 +242,7 @@ GCP_cost_table_agg = GCP_cost_table.groupBy(['usage_start_time']).agg(_sum('stor
 
 df_cost_storage_gcp = GCP_cost_table.groupBy(['usage_start_time','sku_description']).agg(_sum('storage_cost').alias('daily_storage_cost_sum'),_sum('storage_discount').alias('daily_storage_discount_sum'),_sum('total_storage_after_discount').alias('daily_storage_after_discount_sum'))
 
-df_cost_storage_gcp = df_cost_storage_gcp.withColumn('date_normalized', to_date(from_utc_timestamp(col("usage_start_time"),"America/Los_Angeles")))
+df_cost_storage_gcp = df_cost_storage_gcp.withColumn('date_normalized', date_format(to_date(from_utc_timestamp(col("usage_start_time"),"America/Los_Angeles")),"yyyy-MM-dd"))
 
 df_cost_storage_gcp_agg = df_cost_storage_gcp.filter((df_cost_storage_gcp['date_normalized']==str_day_process)).groupBy(['date_normalized']).agg(_sum('daily_storage_cost_sum').alias('daily_storage_cost_sum'),_sum('daily_storage_discount_sum').alias('daily_storage_discount_sum'),_sum('daily_storage_after_discount_sum').alias('daily_storage_after_discount_sum'))
 
