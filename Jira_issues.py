@@ -178,25 +178,32 @@ df_logtable.loc[sourceN,'tableRows'] = len(df_businessUnit.index)
 df_logtable.loc[sourceN,'tableColumns'] = len(df_businessUnit.columns)
 sourceN = sourceN+1
 
+try: 
+  query = """
+  SELECT *
+  FROM `saas-analytics-io.saas_analytics_io_jira.Customers_11800` 
+  """
+  query_job = client.query(
+    query,
+      # Location must match that of the dataset(s) referenced in the query.
+    location = "US",
+  )  # API request - starts the query
+  print(query)
+  df_customers = query_job.to_dataframe()
+  print(df_customers.info())
 
-query = """
- SELECT *
- FROM `saas-analytics-io.saas_analytics_io_jira.Customers_11800` 
-"""
-query_job = client.query(
-  query,
-    # Location must match that of the dataset(s) referenced in the query.
-  location = "US",
-)  # API request - starts the query
-print(query)
-df_customers = query_job.to_dataframe()
-print(df_customers.info())
-
-df_logtable.loc[sourceN,'date'] = str_day
-df_logtable.loc[sourceN,'tableName'] = 'Customers_11800'
-df_logtable.loc[sourceN,'tableRows'] = len(df_customers.index)
-df_logtable.loc[sourceN,'tableColumns'] = len(df_customers.columns)
-sourceN = sourceN+1
+  df_logtable.loc[sourceN,'date'] = str_day
+  df_logtable.loc[sourceN,'tableName'] = 'Customers_11800'
+  df_logtable.loc[sourceN,'tableRows'] = len(df_customers.index)
+  df_logtable.loc[sourceN,'tableColumns'] = len(df_customers.columns)
+  sourceN = sourceN+1
+except Exception as e:
+  print(e)
+  df_logtable.loc[sourceN,'date'] = str_day
+  df_logtable.loc[sourceN,'tableName'] = 'Customers_11800'
+  df_logtable.loc[sourceN,'tableRows'] = e
+  df_logtable.loc[sourceN,'tableColumns'] = e
+  sourceN = sourceN+1
 
 
 query = """
