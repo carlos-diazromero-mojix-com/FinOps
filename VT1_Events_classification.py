@@ -2,9 +2,7 @@
 # coding: utf-8
 
 
-#import pandas_gbq
-import numpy as np
-import requests
+import pandas_gbq
 import datetime
 import pandas as pd
 import re
@@ -17,10 +15,7 @@ from pyspark.sql.functions import expr,first, last,when, split, col,lit, concat,
 
 #client = bigquery.Client(location="us-central1")
 #print("Client creating using default project: {}".format(client.project))
-pd.set_option('display.width', 1000)
-pd.set_option("max_colwidth",10000)
-pd.set_option("max_rows",1000)
-pd.set_option("max_columns",100)
+
 
 
 # In[4]:
