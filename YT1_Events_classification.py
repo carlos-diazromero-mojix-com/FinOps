@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
+
 from google.cloud import bigquery
 import pandas as pd
-import numpy as np
-import requests
 import datetime
 import re
 import json
@@ -14,10 +13,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import expr,first, last,when, split, col,lit, concat, date_format,to_utc_timestamp,to_timestamp, regexp_replace
 client = bigquery.Client(location="us-central1")
 print("Client creating using default project: {}".format(client.project))
-pd.set_option('display.width', 1000)
-pd.set_option("max_colwidth",10000)
-pd.set_option("max_rows",1000)
-pd.set_option("max_columns",100)
+
 
 spark = SparkSession.builder.appName("yt1EventsClassify").getOrCreate()
 
