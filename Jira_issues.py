@@ -16,10 +16,10 @@ import re
 import json
 from datetime import date, timedelta
 from datetime import datetime
-pd.set_option('display.width', 1000)
-pd.set_option("max_colwidth",10000)
-pd.set_option("max_rows",1000)
-pd.set_option("max_columns",100)
+#pd.set_option('display.width', 1000)
+#pd.set_option("max_colwidth",10000)
+#pd.set_option("max_rows",1000)
+#pd.set_option("max_columns",100)
 
 # COMMAND ----------
 
