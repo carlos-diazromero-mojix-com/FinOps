@@ -386,7 +386,7 @@ table_name ='Theme_12033'
 
 query = """
  SELECT *
- FROM `saas-analytics-io.saas_analytics_io_jira.%s` 
+ FROM `saas-analytics-io.jira_cdrt_test.%s` 
 """%(table_name)
 query_job = client.query(
   query,
