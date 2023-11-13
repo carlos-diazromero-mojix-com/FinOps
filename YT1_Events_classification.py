@@ -37,8 +37,10 @@ print(output)
 # In[4]:
 
 
-df_metadata = spark.read.format('bigquery').option('project','saas-analytics-io').option('table','yt1_v1data1.metadata').option("filter", """date(time) = '%s' and time(time)
-    between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
+#df_metadata = spark.read.format('bigquery').option('project','saas-analytics-io').option('table','yt1_v1data1.metadata').option("filter", """date(time) = '%s' and time(time)
+ #   between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
+df_metadata = spark.read.format('bigquery').option('project','saas-mojixretail-io').option('table','silver.kafka_metadata').option("filter", """date(time) = '%s' and time(time)
+   between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
 
 
 # In[5]:
@@ -52,7 +54,9 @@ df_metadata.printSchema()
 # In[53]:
 
 
-df_udf_test = spark.read.format('bigquery').option('project','saas-analytics-io').option('table','processed.udf_filter_finops').option("filter", """date(time) = '%s' and time(time)
+#df_udf_test = spark.read.format('bigquery').option('project','saas-analytics-io').option('table','processed.udf_filter_finops').option("filter", """date(time) = '%s' and time(time)
+ #   between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
+df_udf_test = spark.read.format('bigquery').option('project','saas-mojixretail-io').option('table','processed.udf_filter_finops').option("filter", """date(time) = '%s' and time(time)
     between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
 
 
@@ -67,7 +71,9 @@ print("Total Registros udf_filter_finops ", df_udf_test.count())
 # In[55]:
 
 
-df_reflist = spark.read.format('bigquery').option('project','saas-analytics-io').option('table','processed.yt1_rfl_data').option("filter", """date(time) = '%s' and time(time)
+#df_reflist = spark.read.format('bigquery').option('project','saas-analytics-io').option('table','processed.yt1_rfl_data').option("filter", """date(time) = '%s' and time(time)
+    #between '%s' and '%s'and key ='bizLocation'"""%(str_day,hour_ini_1,hour_fin_1)).load()
+df_reflist = spark.read.format('bigquery').option('project','saas-mojixretail-io').option('table','processed.yt1_rfl_data').option("filter", """date(time) = '%s' and time(time)
     between '%s' and '%s'and key ='bizLocation'"""%(str_day,hour_ini_1,hour_fin_1)).load()
 
 
