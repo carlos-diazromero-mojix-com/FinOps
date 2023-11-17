@@ -56,7 +56,7 @@ df_metadata.printSchema()
 
 #df_udf_test = spark.read.format('bigquery').option('project','saas-analytics-io').option('table','processed.udf_filter_finops').option("filter", """date(time) = '%s' and time(time)
  #   between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
-df_udf_test = spark.read.format('bigquery').option('project','saas-mojixretail-io').option('table','processed.udf_filter_finops').option("filter", """date(time) = '%s' and time(time)
+df_udf_test = spark.read.format('bigquery').option('project','saas-mojixretail-io').option('table','silver.finops_kafka_udf_filtered').option("filter", """date(time) = '%s' and time(time)
     between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
 
 
@@ -73,7 +73,7 @@ print("Total Registros udf_filter_finops ", df_udf_test.count())
 
 #df_reflist = spark.read.format('bigquery').option('project','saas-analytics-io').option('table','processed.yt1_rfl_data').option("filter", """date(time) = '%s' and time(time)
     #between '%s' and '%s'and key ='bizLocation'"""%(str_day,hour_ini_1,hour_fin_1)).load()
-df_reflist = spark.read.format('bigquery').option('project','saas-mojixretail-io').option('table','processed.yt1_rfl_data').option("filter", """date(time) = '%s' and time(time)
+df_reflist = spark.read.format('bigquery').option('project','saas-mojixretail-io').option('table','silver.finops_rfl_data').option("filter", """date(time) = '%s' and time(time)
     between '%s' and '%s'and key ='bizLocation'"""%(str_day,hour_ini_1,hour_fin_1)).load()
 
 
