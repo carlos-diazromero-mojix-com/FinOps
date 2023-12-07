@@ -43,9 +43,9 @@ print(str_day,hour_ini_1,hour_fin_1)
 # In[6]:
 
 
-df_metadata = spark.read.format('bigquery').option('project','saas-analytics-io').option('table','vt1_v1data1.metadata').option("filter", """date(time) = '%s' and time(time) between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
+#df_metadata = spark.read.format('bigquery').option('project','saas-analytics-io').option('table','vt1_v1data1.metadata').option("filter", """date(time) = '%s' and time(time) between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
 
-#df_metadata = spark.read.format('bigquery').option('project','saas-mojixtrack-io').option('table','silver.kafka_metadata').option("filter", """date(time) = '%s' and time(time) between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
+df_metadata = spark.read.format('bigquery').option('project','saas-mojixtrack-io').option('table','silver.kafka_metadata').option("filter", """date(time) = '%s' and time(time) between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
 
 
 # In[7]:
@@ -59,9 +59,9 @@ df_metadata.printSchema()
 # In[ ]:
 
 
-df_udf_test = spark.read.format('bigquery').option('project','saas-analytics-io').option('table','vt1_v1data1.udf').option("filter", """date(time) = '%s' and time(time) between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
+#df_udf_test = spark.read.format('bigquery').option('project','saas-analytics-io').option('table','vt1_v1data1.udf').option("filter", """date(time) = '%s' and time(time) between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
 
-#df_udf_test = spark.read.format('bigquery').option('project','saas-mojixtrack-io').option('table','silver.kafka_udf').option("filter", """date(time) = '%s' and time(time) between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
+df_udf_test = spark.read.format('bigquery').option('project','saas-mojixtrack-io').option('table','silver.kafka_udf').option("filter", """date(time) = '%s' and time(time) between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
 
 
 # In[ ]:
