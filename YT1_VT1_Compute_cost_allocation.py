@@ -249,7 +249,26 @@ df_results_1.printSchema()
 # In[175]:
 
 
-df_results_1 = df_results_1.toPandas()
+df_results_1 = df_results_1[['datetime_h',
+ 'tenantCode',
+ 'thingType',
+ 'specName',
+ 'bridgeKey_2',
+ 'source',
+ 'sourceModule',
+ 'Retail_Bizstep',
+ 'FeatureSet',
+ 'Process',
+ 'SubProcess',
+ 'EventSource',
+ 'StoreCode',
+ 'mojix_blink_count',
+ 'Is_InternalEvent',
+ 'Cost_per_1000_blink_after_discount',
+ 'Cost_per_1000_blink',
+ 'GCP_processing_cost',
+ 'GCP_processing_cost_after_discount',
+ 'datetime_h_LA']].toPandas()
 
 
 # In[176]:
@@ -454,7 +473,24 @@ df_results_1 = df_results_1.withColumn('datetime_h_LA', from_utc_timestamp(col("
 # In[208]:
 
 
-df_results_1 = df_results_1.toPandas()
+df_results_1 = df_results_1[['datetime_h',
+ 'tenantCode',
+ 'thingType',
+ 'specName',
+ 'bridgeKey_2',
+ 'source',
+ 'FeatureSet',
+ 'Process',
+ 'SubProcess',
+ 'EventSource',
+ 'StoreCode',
+ 'mojix_blink_count',
+ 'Is_InternalEvent',
+ 'Cost_per_1000_blink_after_discount',
+ 'Cost_per_1000_blink',
+ 'GCP_processing_cost',
+ 'GCP_processing_cost_after_discount',
+ 'datetime_h_LA']].toPandas()
 
 
 # In[209]:
