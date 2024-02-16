@@ -64,6 +64,7 @@ print("Total Registros udf_filter_finops ", df_udf_test.count())
 df_soh_agg = spark.read.format('bigquery').option('project','saas-mojixretail-io').option('table','silver.finops_soh_agg').option("filter", """date(datetime_h) = '%s' and time(datetime_h)
     between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
 
+print("Total Registros SOH events ", df_soh_agg.count())
 
 
 # ### Read REFLIST Source
