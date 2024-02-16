@@ -34,16 +34,10 @@ print(output)
 
 # ### Read Events Metadata
 
-# In[4]:
-
-
 #df_metadata = spark.read.format('bigquery').option('project','saas-analytics-io').option('table','yt1_v1data1.metadata').option("filter", """date(time) = '%s' and time(time)
  #   between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
 df_metadata = spark.read.format('bigquery').option('project','saas-mojixretail-io').option('table','silver.kafka_metadata').option("filter", """date(time) = '%s' and time(time)
    between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
-
-
-# In[5]:
 
 
 df_metadata.printSchema()
@@ -64,6 +58,12 @@ df_udf_test = spark.read.format('bigquery').option('project','saas-mojixretail-i
 
 
 print("Total Registros udf_filter_finops ", df_udf_test.count())
+
+# ### Read SOH events AGG from bigquery 
+
+df_soh_agg = spark.read.format('bigquery').option('project','saas-mojixretail-io').option('table','silver.finops_soh_agg').option("filter", """date(datetime_h) = '%s' and time(datetime_h)
+    between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
+
 
 
 # ### Read REFLIST Source
@@ -1283,7 +1283,7 @@ df_full = df_full.withColumn('Is_InternalEvent',when((df_full['thingType']=='CON
                              .otherwise('N/A'))
 
 
-# In[82]:
+
 
 
 #df_full_2 = df_full[(df_full['storeCode'].isin(['N/A','','No Store']))|(df_full['storeCode'].isNull())][['id','serialNumber','tenantCode','time','group','thingType','bridgeKey','specName','priority','requestId','action','bridgeKey_2','datetime_h','Event_Activity','Event_GroupCode','Event_Source','Event_SubCategory','Retail_Bizlocation','Retail_Bizstep','Retail_Disposition','Retail_Extension','Retail_Premise','Retail_SOHStoreNumber','Retail_StoreNumber','bizStep','logicalReader','source','sourceModule','status','transactionId','zone','doorEvent','FeatureSet','Process','SubProcess','EventSource','StoreCode','Is_InternalEvent']]
@@ -1346,6 +1346,7 @@ df_full.printSchema()
 
 df_agg_1 = df_full.groupBy(['datetime_h','tenantCode','thingType','specName','bridgeKey_2','source','sourceModule','Retail_Bizstep','FeatureSet','Process','SubProcess','EventSource','StoreCode','Is_InternalEvent']).count()
 
+df_agg_1  = df_soh_agg.union(df_agg_1)
 
 # In[91]:
 
