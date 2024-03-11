@@ -973,30 +973,38 @@ try:
 except Exception as e:
   print('Error: ',e)
 
+
+
 ### Customer Aggregation for PR
-df_customers_agg = pd.merge(df_customers,df_PR_f[['LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_BU','LINKED_1_VERSION_NAME',
-                                                  'CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION',
-                                                  'SUB_ISSUE_KEY','SUB_STATUS_CATEGORY_CHANGE_DATE','SUB_STORYPOINTS']],how='inner',left_on = 'ISSUE_KEY',right_on='LINKED_1_ISSUE_KEY')
-df_customers_agg = df_customers_agg.drop(['ISSUE_ID','ISSUE_KEY','Customers_2'], axis =1)
-df_customers_agg = df_customers_agg.rename( columns={'Customers' : 'CUSTOMERS'})
+try:
+  print('Customer Aggregation for Prs')
+  df_customers_agg = pd.merge(df_customers,df_PR_f[['LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_BU','LINKED_1_VERSION_NAME',
+                                                    'CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION',
+                                                    'SUB_ISSUE_KEY','SUB_STATUS_CATEGORY_CHANGE_DATE','SUB_STORYPOINTS']],how='inner',left_on = 'ISSUE_KEY',right_on='LINKED_1_ISSUE_KEY')
+  df_customers_agg = df_customers_agg.drop(['ISSUE_ID','ISSUE_KEY','Customers_2'], axis =1)
+  df_customers_agg = df_customers_agg.rename( columns={'Customers' : 'CUSTOMERS'})
 
-df_customers_adj = df_customers.groupby('ISSUE_KEY').count()[['Customers']].reset_index()
-df_customers_adj = df_customers_adj.rename(columns={'Customers':'CUSTOMERS_COUNT','ISSUE_KEY':'LINKED_1_ISSUE_KEY'})
-df_customers_agg = pd.merge(df_customers_agg,df_customers_adj,how='left', on='LINKED_1_ISSUE_KEY')
-df_customers_agg.loc[:,'ADJ_STORYPOINTS']= df_customers_agg['SUB_STORYPOINTS']/df_customers_agg['CUSTOMERS_COUNT']
-
+  df_customers_adj = df_customers.groupby('ISSUE_KEY').count()[['Customers']].reset_index()
+  df_customers_adj = df_customers_adj.rename(columns={'Customers':'CUSTOMERS_COUNT','ISSUE_KEY':'LINKED_1_ISSUE_KEY'})
+  df_customers_agg = pd.merge(df_customers_agg,df_customers_adj,how='left', on='LINKED_1_ISSUE_KEY')
+  df_customers_agg.loc[:,'ADJ_STORYPOINTS']= df_customers_agg['SUB_STORYPOINTS']/df_customers_agg['CUSTOMERS_COUNT']
+except Exception as e:
+  print('Error: ',e)
 ### Category Aggregation for PR
-df_category_agg = pd.merge(df_category[['ISSUE_KEY','OKR_Category']],df_PR_f[['LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_BU','LINKED_1_VERSION_NAME',
+try:
+  print('Category Aggregation for Prs')
+  df_category_agg = pd.merge(df_category[['ISSUE_KEY','OKR_Category']],df_PR_f[['LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_BU','LINKED_1_VERSION_NAME',
                                                   'CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION',
                                                   'SUB_ISSUE_KEY','SUB_STATUS_CATEGORY_CHANGE_DATE','SUB_STORYPOINTS']],how='inner',left_on = 'ISSUE_KEY',right_on='LINKED_1_ISSUE_KEY')
-df_category_agg = df_category_agg.drop(['ISSUE_KEY'], axis =1)
-df_category_agg = df_category_agg.rename( columns={'OKR_Category' : 'CATEGORY'})
+  df_category_agg = df_category_agg.drop(['ISSUE_KEY'], axis =1)
+  df_category_agg = df_category_agg.rename( columns={'OKR_Category' : 'CATEGORY'})
 
-df_category_adj = df_category.groupby('ISSUE_KEY').count()[['OKR_Category']].reset_index()
-df_category_adj = df_category_adj.rename(columns={'OKR_Category':'CATEGORY_COUNT','ISSUE_KEY':'LINKED_1_ISSUE_KEY'})
-df_category_agg = pd.merge(df_category_agg,df_category_adj,how='left', on='LINKED_1_ISSUE_KEY')
-df_category_agg.loc[:,'ADJ_STORYPOINTS']= df_category_agg['SUB_STORYPOINTS']/df_category_agg['CATEGORY_COUNT']
-
+  df_category_adj = df_category.groupby('ISSUE_KEY').count()[['OKR_Category']].reset_index()
+  df_category_adj = df_category_adj.rename(columns={'OKR_Category':'CATEGORY_COUNT','ISSUE_KEY':'LINKED_1_ISSUE_KEY'})
+  df_category_agg = pd.merge(df_category_agg,df_category_adj,how='left', on='LINKED_1_ISSUE_KEY')
+  df_category_agg.loc[:,'ADJ_STORYPOINTS']= df_category_agg['SUB_STORYPOINTS']/df_category_agg['CATEGORY_COUNT']
+except Exception as e:
+  print('Error: ',e)
 #### Upload Customer and Category aggregation to BigQuery
 #  - saas-analytics-io.processed.jira_processed_PR_customers
 #  - saas-analytics-io.processed.jira_processed_PR_category
@@ -1017,29 +1025,36 @@ except Exception as e:
   print('Error:',e)
 
 ### Customer Aggregation for IDEA
-df_customers_ideas_agg = pd.merge(df_customers,df_YTEM_1[['LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_BU','LINKED_1_VERSION_NAME',
-                                                  'CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION',
-                                                  'SUB_ISSUE_KEY','SUB_STATUS_CATEGORY_CHANGE_DATE','SUB_STORYPOINTS']],how='inner',left_on = 'ISSUE_KEY',right_on='LINKED_1_ISSUE_KEY')
-df_customers_ideas_agg = df_customers_ideas_agg.drop(['ISSUE_ID','ISSUE_KEY','Customers_2'], axis =1)
-df_customers_ideas_agg = df_customers_ideas_agg.rename( columns={'Customers' : 'CUSTOMERS'})
+try:
+  print('Customer Aggregation for IDEAs')  
+  df_customers_ideas_agg = pd.merge(df_customers,df_YTEM_1[['LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_BU','LINKED_1_VERSION_NAME',
+                                                    'CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION',
+                                                    'SUB_ISSUE_KEY','SUB_STATUS_CATEGORY_CHANGE_DATE','SUB_STORYPOINTS']],how='inner',left_on = 'ISSUE_KEY',right_on='LINKED_1_ISSUE_KEY')
+  df_customers_ideas_agg = df_customers_ideas_agg.drop(['ISSUE_ID','ISSUE_KEY','Customers_2'], axis =1)
+  df_customers_ideas_agg = df_customers_ideas_agg.rename( columns={'Customers' : 'CUSTOMERS'})
 
-df_customers_ideas_adj = df_customers.groupby('ISSUE_KEY').count()[['Customers']].reset_index()
-df_customers_ideas_adj = df_customers_ideas_adj.rename(columns={'Customers':'CUSTOMERS_COUNT','ISSUE_KEY':'LINKED_1_ISSUE_KEY'})
-df_customers_ideas_agg = pd.merge(df_customers_ideas_agg,df_customers_ideas_adj,how='left', on='LINKED_1_ISSUE_KEY')
-df_customers_ideas_agg.loc[:,'ADJ_STORYPOINTS']= df_customers_ideas_agg['SUB_STORYPOINTS']/df_customers_ideas_agg['CUSTOMERS_COUNT']
-
+  df_customers_ideas_adj = df_customers.groupby('ISSUE_KEY').count()[['Customers']].reset_index()
+  df_customers_ideas_adj = df_customers_ideas_adj.rename(columns={'Customers':'CUSTOMERS_COUNT','ISSUE_KEY':'LINKED_1_ISSUE_KEY'})
+  df_customers_ideas_agg = pd.merge(df_customers_ideas_agg,df_customers_ideas_adj,how='left', on='LINKED_1_ISSUE_KEY')
+  df_customers_ideas_agg.loc[:,'ADJ_STORYPOINTS']= df_customers_ideas_agg['SUB_STORYPOINTS']/df_customers_ideas_agg['CUSTOMERS_COUNT']
+except Exception as e:
+  print('Error: ',e)
 ### Category Aggregation for IDEA
-df_category_ideas_agg = pd.merge(df_category[['ISSUE_KEY','OKR_Category']],df_YTEM_1[['LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_BU','LINKED_1_VERSION_NAME',
-                                                  'CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION',
-                                                  'SUB_ISSUE_KEY','SUB_STATUS_CATEGORY_CHANGE_DATE','SUB_STORYPOINTS']],how='inner',left_on = 'ISSUE_KEY',right_on='LINKED_1_ISSUE_KEY')
-df_category_ideas_agg = df_category_ideas_agg.drop(['ISSUE_KEY'], axis =1)
-df_category_ideas_agg = df_category_ideas_agg.rename( columns={'OKR_Category' : 'CATEGORY'})
+try:
+  print('Category Aggregation for IDEAs') 
+  df_category_ideas_agg = pd.merge(df_category[['ISSUE_KEY','OKR_Category']],df_YTEM_1[['LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_BU','LINKED_1_VERSION_NAME',
+                                                    'CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION',
+                                                    'SUB_ISSUE_KEY','SUB_STATUS_CATEGORY_CHANGE_DATE','SUB_STORYPOINTS']],how='inner',left_on = 'ISSUE_KEY',right_on='LINKED_1_ISSUE_KEY')
+  df_category_ideas_agg = df_category_ideas_agg.drop(['ISSUE_KEY'], axis =1)
+  df_category_ideas_agg = df_category_ideas_agg.rename( columns={'OKR_Category' : 'CATEGORY'})
 
-df_category_ideas_adj = df_category.groupby('ISSUE_KEY').count()[['OKR_Category']].reset_index()
-df_category_ideas_adj = df_category_ideas_adj.rename(columns={'OKR_Category':'CATEGORY_COUNT','ISSUE_KEY':'LINKED_1_ISSUE_KEY'})
-df_category_ideas_agg = pd.merge(df_category_ideas_agg,df_category_ideas_adj,how='left', on='LINKED_1_ISSUE_KEY')
-df_category_ideas_agg.loc[:,'ADJ_STORYPOINTS']= df_category_ideas_agg['SUB_STORYPOINTS']/df_category_ideas_agg['CATEGORY_COUNT']
-
+  df_category_ideas_adj = df_category.groupby('ISSUE_KEY').count()[['OKR_Category']].reset_index()
+  df_category_ideas_adj = df_category_ideas_adj.rename(columns={'OKR_Category':'CATEGORY_COUNT','ISSUE_KEY':'LINKED_1_ISSUE_KEY'})
+  df_category_ideas_agg = pd.merge(df_category_ideas_agg,df_category_ideas_adj,how='left', on='LINKED_1_ISSUE_KEY')
+  df_category_ideas_agg.loc[:,'ADJ_STORYPOINTS']= df_category_ideas_agg['SUB_STORYPOINTS']/df_category_ideas_agg['CATEGORY_COUNT']
+except Exception as e:
+  print('Error: ',e)
+  
 #### Upload Customer and Category aggregation to BigQuery
 # - saas-analytics-io.processed.jira_processed_IDEAS_customers
 # - saas-analytics-io.processed.jira_processed_IDEAS_category
