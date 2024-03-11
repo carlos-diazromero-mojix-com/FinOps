@@ -667,140 +667,145 @@ df_issues_1 = df_issues_1.rename(columns={"LINKED_ISSUE_ID":"LINKED_1_ISSUE_ID",
 df_issues_2 = pd.merge(df_issues_1, df_issues_s_2,on=['LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_ID'],how="left")
 
 ### Product Requests (PR) - Data Preparation
-df_PR = df_issues_2[df_issues_2['ISSUE_TYPE_NAME'].str.startswith('Product Request')][['CREATED','ISSUE_KEY','SUMMARY',
-                                                                       'ISSUE_TYPE_NAME','ISSUE_STATUS_NAME',
-                                                                        'CURRENT_ASSIGNEE_NAME',
-        'SPRINT_ID','SPRINT_NAME','STATE','START_DATE','END_DATE','COMPLETE_DATE',
-        #'VERSION_ID',
-        'VERSION_NAME','PRIORITY',
-        'REPORTER_NAME','RESOLUTION_DATE','STATUS_CATEGORY_CHANGE_DATE',
-        #'TIME_SPENT','TIME_SPENT_WITH_SUBTASKS',
-         'CATEGORY','BU','CUSTOMERS','STORYPOINTS','PROGRESS' ,'TYPE_1','DIRECTION_1',                                                              
-        'LINKED_1_ISSUE_KEY','LINKED_1_SUMMARY','LINKED_1_ISSUE_TYPE_NAME','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_ASSIGNEE_NAME',
-        'LINKED_1_SPRINT_NAME','LINKED_1_SPRINT_START_DATE','LINKED_1_SPRINT_END_DATE','LINKED_1_VERSION_NAME',
-        'LINKED_1_CATEGORY','LINKED_1_BU','LINKED_1_CUSTOMERS',
-        'LINKED_1_THEME',
-        'LINKED_1_STORYPOINTS','LINKED_1_PROGRESS'
-         ]]
-df_PR = df_PR[(df_PR['TYPE_1']=='Depends')&(df_PR['DIRECTION_1']=='Outward')]
-df_issues_PR_1 = df_issues_2[(df_issues_2['ISSUE_TYPE_NAME']!='Product Request')
-                             &(df_issues_2['PARENT_ISSUE_KEY'].notnull())][['CREATED','ISSUE_KEY','SUMMARY',
-                                                                              'ISSUE_TYPE_NAME','ISSUE_STATUS_NAME',
-                                                                              'STATUS_CATEGORY_CHANGE_DATE',
-                                                                              'SPRINT_NAME','STATE','START_DATE',
-                                                                              'END_DATE','COMPLETE_DATE',
-                                                                              'VERSION_NAME','CURRENT_ASSIGNEE_NAME',
-                                                                              'REPORTER_NAME',
-                                                                              #'TIME_SPENT','TIME_SPENT_WITH_SUBTASKS',
-                                                                              'CATEGORY','BU','CUSTOMERS',
-                                                                            'THEME',
-                                                                            'STORYPOINTS','PROGRESS','PARENT_ISSUE_KEY'
-                                                                             ]]
-
-
-df_issues_PR_1 = df_issues_PR_1.rename(columns={"CREATED": "CHILD_CREATED", 
-                              "ISSUE_KEY": "CHILD_ISSUE_KEY",
-                              "SUMMARY": "CHILD_SUMMARY",                                            
-                              "ISSUE_TYPE_NAME":"CHILD_ISSUE_TYPE_NAME",
-                              "STATUS_CATEGORY_CHANGE_DATE":"CHILD_STATUS_CATEGORY_CHANGE_DATE",
-                              "ISSUE_STATUS_NAME":"CHILD_ISSUE_STATUS_NAME",
-                              "SPRINT_NAME":"CHILD_SPRINT_NAME",
-                              "STATE":"CHILD_SPRINT_STATE",                  
-                              "START_DATE":"CHILD_SPRINT_START_DATE",
-                              "END_DATE":"CHILD_SPRINT_END_DATE",
-                              "COMPLETE_DATE":"CHILD_SPRINT_COMPLETE_DATE",
-                              "VERSION_NAME":"CHILD_VERSION_NAME",
-                              "CURRENT_ASSIGNEE_NAME":"CHILD_ASSIGNEE_NAME",
-                              'REPORTER_NAME':'CHILD_REPORTER_NAME',
-                              #'TIME_SPENT':'CHILD_TIME_SPENT',
-                              #'TIME_SPENT_WITH_SUBTASKS':'CHILD_TIME_SPENT_WITH_SUBTASKS',
-                              'CATEGORY':'CHILD_CATEGORY',
-                              'BU':'CHILD_BU',
-                              'CUSTOMERS':'CHILD_CUSTOMERS',
-                              'THEME':'CHILD_THEME',                  
-                              'STORYPOINTS':'CHILD_STORYPOINTS',
-                              'PROGRESS':'CHILD_PROGRESS',
-                              'PARENT_ISSUE_KEY':'LINKED_1_ISSUE_KEY'                  
-                             })
-
-df_PR_1 = pd.merge(df_PR, df_issues_PR_1,how='left', on='LINKED_1_ISSUE_KEY')
-df_sub_PR_1 = df_issues_2[(df_issues_2['ISSUE_TYPE_NAME']!='Product Request')
-                             &(df_issues_2['PARENT_ISSUE_KEY'].notnull())][['CREATED','ISSUE_KEY','SUMMARY',
-                                                                              'ISSUE_TYPE_NAME','ISSUE_STATUS_NAME',
-                                                                              'STATUS_CATEGORY_CHANGE_DATE',
-                                                                              'SPRINT_NAME','STATE','START_DATE',
-                                                                              'END_DATE','COMPLETE_DATE',
-                                                                              'VERSION_NAME','CURRENT_ASSIGNEE_NAME',
-                                                                              'REPORTER_NAME',
-                                                                              #'TIME_SPENT','TIME_SPENT_WITH_SUBTASKS',
-                                                                              'CATEGORY','BU','CUSTOMERS',
-                                                                            'THEME',
-                                                                            'STORYPOINTS','PROGRESS','PARENT_ISSUE_KEY'
-                                                                             ]]
-df_sub_PR_1 = df_sub_PR_1.rename(columns={"CREATED": "SUB_CREATED", 
-                              "ISSUE_KEY": "SUB_ISSUE_KEY",
-                              "SUMMARY": "SUB_SUMMARY", 
-                              "ISSUE_TYPE_NAME":"SUB_ISSUE_TYPE_NAME",
-                              "STATUS_CATEGORY_CHANGE_DATE":"SUB_STATUS_CATEGORY_CHANGE_DATE",
-                              "ISSUE_STATUS_NAME":"SUB_ISSUE_STATUS_NAME",
-                              "SPRINT_NAME":"SUB_SPRINT_NAME",
-                              "STATE":"SUB_SPRINT_STATE",                  
-                              "START_DATE":"SUB_SPRINT_START_DATE",
-                              "END_DATE":"SUB_SPRINT_END_DATE",
-                              "COMPLETE_DATE":"SUB_SPRINT_COMPLETE_DATE",
-                              "VERSION_NAME":"SUB_VERSION_NAME",
-                              "CURRENT_ASSIGNEE_NAME":"SUB_ASSIGNEE_NAME",
-                              'REPORTER_NAME':'SUB_REPORTER_NAME',
-                              #'TIME_SPENT':'SUB_TIME_SPENT',
-                              #'TIME_SPENT_WITH_SUBTASKS':'SUB_TIME_SPENT_WITH_SUBTASKS',
-                              'CATEGORY':'SUB_CATEGORY',
-                              'BU':'SUB_BU',
-                              'CUSTOMERS':'SUB_CUSTOMERS',
-                              'THEME':'SUB_THEME',  
-                              'STORYPOINTS':'SUB_STORYPOINTS',
-                              'PROGRESS':'SUB_PROGRESS',
-                              'PARENT_ISSUE_KEY':'CHILD_ISSUE_KEY'                  
-                             })
-
-df_PR_f = pd.merge(df_PR_1, df_sub_PR_1,how='left', on='CHILD_ISSUE_KEY')
-
-df_PR_f.loc[df_PR_f['SUB_ISSUE_KEY'].notnull(),'TOTAL_STORYPOINTS']= df_PR_f['SUB_STORYPOINTS']
-df_PR_f.loc[(df_PR_f['TOTAL_STORYPOINTS'].isnull())&
-            (df_PR_f['SUB_ISSUE_KEY'].isnull())&
-            (df_PR_f['CHILD_ISSUE_KEY'].notnull()),'TOTAL_STORYPOINTS']= df_PR_f['CHILD_STORYPOINTS']
-df_PR_f.loc[(df_PR_f['TOTAL_STORYPOINTS'].isnull())&
-            (df_PR_f['SUB_ISSUE_KEY'].isnull())&
-            (df_PR_f['CHILD_ISSUE_KEY'].isnull())&
-            (df_PR_f['LINKED_1_ISSUE_KEY'].notnull()),'TOTAL_STORYPOINTS']= df_PR_f['LINKED_1_STORYPOINTS']
-
-# Assign version from CHILD SPRINT START DATE
-df_versions['START_DATE_m'] = df_versions['RELEASE_DATE']+pd.Timedelta(days=1)
-df_versions['START_DATE_2_m'] = df_versions['RELEASE_DATE']+pd.Timedelta(seconds=86399)
-
-for i in range(0,df_versions['VERSION_ID'].count()):
-    START_DATE = df_versions.iloc[i-1,10] 
-    END_DATE = df_versions.iloc[i,11] 
-    if i < 10:
-        i_m = "0"+str(i)
-    if i >=10:
-        i_m = str(i)
-    VERSION = i_m+" "+df_versions.iloc[i,1]
-    if VERSION == '00 v8.4 Chihuahua':
-        START_DATE='2021-09-27 00:00:00+00:00'
-    #START_DATE = START_DATE.replace("00:00:00+00:00","23:59:59+00:00")
-    #END_DATE = END_DATE
-    df_PR_f.loc[(df_PR_f['CHILD_SPRINT_START_DATE']>=START_DATE)
-                &(df_PR_f['CHILD_SPRINT_START_DATE']<=END_DATE),'CHILD_SPRINT_DATE_VERSION']= VERSION
-    df_PR_f.loc[(df_PR_f['CHILD_SPRINT_END_DATE']>=START_DATE)
-                &(df_PR_f['CHILD_SPRINT_END_DATE']<=END_DATE),'CHILD_SPRINT_END_DATE_VERSION']= VERSION
-    #df_PR_f.loc[(df_PR_f['STATUS_DATE_VERSION'].isnull())&(df_PR_f['CHILD_STATUS_CATEGORY_CHANGE_DATE']>START_DATE)&(df_PR_f['CHILD_STATUS_CATEGORY_CHANGE_DATE']>END_DATE),'STATUS_DATE_VERSION']= VERSION
-    print(START_DATE,END_DATE,VERSION)
-    
 try:
-  print('JIRA PRs UPLOAD to BIGQUERY')
-  table = "saas-analytics-io.processed.jira_processed_PR"
-  df_PR_f.to_gbq(table, if_exists='replace')
-  print('JIRA PRs FULL DATA write in BQ --> done')
+  print('PR transformation')
+  df_PR = df_issues_2[df_issues_2['ISSUE_TYPE_NAME'].str.startswith('Product Request')][['CREATED','ISSUE_KEY','SUMMARY',
+                                                                        'ISSUE_TYPE_NAME','ISSUE_STATUS_NAME',
+                                                                          'CURRENT_ASSIGNEE_NAME',
+          'SPRINT_ID','SPRINT_NAME','STATE','START_DATE','END_DATE','COMPLETE_DATE',
+          #'VERSION_ID',
+          'VERSION_NAME','PRIORITY',
+          'REPORTER_NAME','RESOLUTION_DATE','STATUS_CATEGORY_CHANGE_DATE',
+          #'TIME_SPENT','TIME_SPENT_WITH_SUBTASKS',
+          'CATEGORY','BU','CUSTOMERS','STORYPOINTS','PROGRESS' ,'TYPE_1','DIRECTION_1',                                                              
+          'LINKED_1_ISSUE_KEY','LINKED_1_SUMMARY','LINKED_1_ISSUE_TYPE_NAME','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_ASSIGNEE_NAME',
+          'LINKED_1_SPRINT_NAME','LINKED_1_SPRINT_START_DATE','LINKED_1_SPRINT_END_DATE','LINKED_1_VERSION_NAME',
+          'LINKED_1_CATEGORY','LINKED_1_BU','LINKED_1_CUSTOMERS',
+          'LINKED_1_THEME',
+          'LINKED_1_STORYPOINTS','LINKED_1_PROGRESS'
+          ]]
+  df_PR = df_PR[(df_PR['TYPE_1']=='Depends')&(df_PR['DIRECTION_1']=='Outward')]
+  df_issues_PR_1 = df_issues_2[(df_issues_2['ISSUE_TYPE_NAME']!='Product Request')
+                              &(df_issues_2['PARENT_ISSUE_KEY'].notnull())][['CREATED','ISSUE_KEY','SUMMARY',
+                                                                                'ISSUE_TYPE_NAME','ISSUE_STATUS_NAME',
+                                                                                'STATUS_CATEGORY_CHANGE_DATE',
+                                                                                'SPRINT_NAME','STATE','START_DATE',
+                                                                                'END_DATE','COMPLETE_DATE',
+                                                                                'VERSION_NAME','CURRENT_ASSIGNEE_NAME',
+                                                                                'REPORTER_NAME',
+                                                                                #'TIME_SPENT','TIME_SPENT_WITH_SUBTASKS',
+                                                                                'CATEGORY','BU','CUSTOMERS',
+                                                                              'THEME',
+                                                                              'STORYPOINTS','PROGRESS','PARENT_ISSUE_KEY'
+                                                                              ]]
+
+
+  df_issues_PR_1 = df_issues_PR_1.rename(columns={"CREATED": "CHILD_CREATED", 
+                                "ISSUE_KEY": "CHILD_ISSUE_KEY",
+                                "SUMMARY": "CHILD_SUMMARY",                                            
+                                "ISSUE_TYPE_NAME":"CHILD_ISSUE_TYPE_NAME",
+                                "STATUS_CATEGORY_CHANGE_DATE":"CHILD_STATUS_CATEGORY_CHANGE_DATE",
+                                "ISSUE_STATUS_NAME":"CHILD_ISSUE_STATUS_NAME",
+                                "SPRINT_NAME":"CHILD_SPRINT_NAME",
+                                "STATE":"CHILD_SPRINT_STATE",                  
+                                "START_DATE":"CHILD_SPRINT_START_DATE",
+                                "END_DATE":"CHILD_SPRINT_END_DATE",
+                                "COMPLETE_DATE":"CHILD_SPRINT_COMPLETE_DATE",
+                                "VERSION_NAME":"CHILD_VERSION_NAME",
+                                "CURRENT_ASSIGNEE_NAME":"CHILD_ASSIGNEE_NAME",
+                                'REPORTER_NAME':'CHILD_REPORTER_NAME',
+                                #'TIME_SPENT':'CHILD_TIME_SPENT',
+                                #'TIME_SPENT_WITH_SUBTASKS':'CHILD_TIME_SPENT_WITH_SUBTASKS',
+                                'CATEGORY':'CHILD_CATEGORY',
+                                'BU':'CHILD_BU',
+                                'CUSTOMERS':'CHILD_CUSTOMERS',
+                                'THEME':'CHILD_THEME',                  
+                                'STORYPOINTS':'CHILD_STORYPOINTS',
+                                'PROGRESS':'CHILD_PROGRESS',
+                                'PARENT_ISSUE_KEY':'LINKED_1_ISSUE_KEY'                  
+                              })
+
+  df_PR_1 = pd.merge(df_PR, df_issues_PR_1,how='left', on='LINKED_1_ISSUE_KEY')
+  df_sub_PR_1 = df_issues_2[(df_issues_2['ISSUE_TYPE_NAME']!='Product Request')
+                              &(df_issues_2['PARENT_ISSUE_KEY'].notnull())][['CREATED','ISSUE_KEY','SUMMARY',
+                                                                                'ISSUE_TYPE_NAME','ISSUE_STATUS_NAME',
+                                                                                'STATUS_CATEGORY_CHANGE_DATE',
+                                                                                'SPRINT_NAME','STATE','START_DATE',
+                                                                                'END_DATE','COMPLETE_DATE',
+                                                                                'VERSION_NAME','CURRENT_ASSIGNEE_NAME',
+                                                                                'REPORTER_NAME',
+                                                                                #'TIME_SPENT','TIME_SPENT_WITH_SUBTASKS',
+                                                                                'CATEGORY','BU','CUSTOMERS',
+                                                                              'THEME',
+                                                                              'STORYPOINTS','PROGRESS','PARENT_ISSUE_KEY'
+                                                                              ]]
+  df_sub_PR_1 = df_sub_PR_1.rename(columns={"CREATED": "SUB_CREATED", 
+                                "ISSUE_KEY": "SUB_ISSUE_KEY",
+                                "SUMMARY": "SUB_SUMMARY", 
+                                "ISSUE_TYPE_NAME":"SUB_ISSUE_TYPE_NAME",
+                                "STATUS_CATEGORY_CHANGE_DATE":"SUB_STATUS_CATEGORY_CHANGE_DATE",
+                                "ISSUE_STATUS_NAME":"SUB_ISSUE_STATUS_NAME",
+                                "SPRINT_NAME":"SUB_SPRINT_NAME",
+                                "STATE":"SUB_SPRINT_STATE",                  
+                                "START_DATE":"SUB_SPRINT_START_DATE",
+                                "END_DATE":"SUB_SPRINT_END_DATE",
+                                "COMPLETE_DATE":"SUB_SPRINT_COMPLETE_DATE",
+                                "VERSION_NAME":"SUB_VERSION_NAME",
+                                "CURRENT_ASSIGNEE_NAME":"SUB_ASSIGNEE_NAME",
+                                'REPORTER_NAME':'SUB_REPORTER_NAME',
+                                #'TIME_SPENT':'SUB_TIME_SPENT',
+                                #'TIME_SPENT_WITH_SUBTASKS':'SUB_TIME_SPENT_WITH_SUBTASKS',
+                                'CATEGORY':'SUB_CATEGORY',
+                                'BU':'SUB_BU',
+                                'CUSTOMERS':'SUB_CUSTOMERS',
+                                'THEME':'SUB_THEME',  
+                                'STORYPOINTS':'SUB_STORYPOINTS',
+                                'PROGRESS':'SUB_PROGRESS',
+                                'PARENT_ISSUE_KEY':'CHILD_ISSUE_KEY'                  
+                              })
+
+  df_PR_f = pd.merge(df_PR_1, df_sub_PR_1,how='left', on='CHILD_ISSUE_KEY')
+
+  df_PR_f.loc[df_PR_f['SUB_ISSUE_KEY'].notnull(),'TOTAL_STORYPOINTS']= df_PR_f['SUB_STORYPOINTS']
+  df_PR_f.loc[(df_PR_f['TOTAL_STORYPOINTS'].isnull())&
+              (df_PR_f['SUB_ISSUE_KEY'].isnull())&
+              (df_PR_f['CHILD_ISSUE_KEY'].notnull()),'TOTAL_STORYPOINTS']= df_PR_f['CHILD_STORYPOINTS']
+  df_PR_f.loc[(df_PR_f['TOTAL_STORYPOINTS'].isnull())&
+              (df_PR_f['SUB_ISSUE_KEY'].isnull())&
+              (df_PR_f['CHILD_ISSUE_KEY'].isnull())&
+              (df_PR_f['LINKED_1_ISSUE_KEY'].notnull()),'TOTAL_STORYPOINTS']= df_PR_f['LINKED_1_STORYPOINTS']
+
+  # Assign version from CHILD SPRINT START DATE
+  df_versions['START_DATE_m'] = df_versions['RELEASE_DATE']+pd.Timedelta(days=1)
+  df_versions['START_DATE_2_m'] = df_versions['RELEASE_DATE']+pd.Timedelta(seconds=86399)
+
+  for i in range(0,df_versions['VERSION_ID'].count()):
+      START_DATE = df_versions.iloc[i-1,10] 
+      END_DATE = df_versions.iloc[i,11] 
+      if i < 10:
+          i_m = "0"+str(i)
+      if i >=10:
+          i_m = str(i)
+      VERSION = i_m+" "+df_versions.iloc[i,1]
+      if VERSION == '00 v8.4 Chihuahua':
+          START_DATE='2021-09-27 00:00:00+00:00'
+      #START_DATE = START_DATE.replace("00:00:00+00:00","23:59:59+00:00")
+      #END_DATE = END_DATE
+      df_PR_f.loc[(df_PR_f['CHILD_SPRINT_START_DATE']>=START_DATE)
+                  &(df_PR_f['CHILD_SPRINT_START_DATE']<=END_DATE),'CHILD_SPRINT_DATE_VERSION']= VERSION
+      df_PR_f.loc[(df_PR_f['CHILD_SPRINT_END_DATE']>=START_DATE)
+                  &(df_PR_f['CHILD_SPRINT_END_DATE']<=END_DATE),'CHILD_SPRINT_END_DATE_VERSION']= VERSION
+      #df_PR_f.loc[(df_PR_f['STATUS_DATE_VERSION'].isnull())&(df_PR_f['CHILD_STATUS_CATEGORY_CHANGE_DATE']>START_DATE)&(df_PR_f['CHILD_STATUS_CATEGORY_CHANGE_DATE']>END_DATE),'STATUS_DATE_VERSION']= VERSION
+      print(START_DATE,END_DATE,VERSION)
+      
+  try:
+    print('JIRA PRs UPLOAD to BIGQUERY')
+    table = "saas-analytics-io.processed.jira_processed_PR"
+    df_PR_f.to_gbq(table, if_exists='replace')
+    print('JIRA PRs FULL DATA write in BQ --> done')
+  except Exception as e:
+    print('error: ',e)
+
 except Exception as e:
   print('error: ',e)
 
