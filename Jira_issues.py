@@ -482,22 +482,11 @@ except Exception as e:
     df_logtable.loc[sourceN,'tableColumns'] = 0
     df_logtable.loc[sourceN,'status'] = e
 
-# COMMAND ----------
 
 df_logtable
 
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ## Data Preparation
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### Worklog
-
-# COMMAND ----------
-
+## Data Preparation
+#### Worklog
 df_worklog_1 = pd.merge(df_worklog,df_issues[['ISSUE_KEY','ISSUE_TYPE_NAME','Progress___11891','Story_Points_10400']],on = 'ISSUE_KEY', how= 'left')
 df_worklog_1 = df_worklog_1.rename(columns={'ISSUE_TYPE_NAME':'ISSUE_TYPE_NAME_LOGGED',
                             'ISSUE_KEY':'ISSUE_KEY_LOGGED',
@@ -505,35 +494,12 @@ df_worklog_1 = df_worklog_1.rename(columns={'ISSUE_TYPE_NAME':'ISSUE_TYPE_NAME_L
                             'Story_Points_10400':'STORYPOINTS_LOGGED',
                             })
 
-# COMMAND ----------
 
-#df_worklog_1.tail()
-
-# COMMAND ----------
-
-#df_worklog_1.fillna(0).groupby('ISSUE_TYPE_NAME_LOGGED').count()
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### Versions (Select only releases)
-
-# COMMAND ----------
-
+#### Versions (Select only releases)
 df_versions = df_versions[df_versions['VERSION_NAME'].str.contains('^v[1-9]')].sort_values('START_DATE')
 df_versions = df_versions.sort_values('START_DATE')
 
-# COMMAND ----------
-
-#df_versions
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### Category (Concat in one Field)
-
-# COMMAND ----------
-
+#### Category (Concat in one Field)
 df_category_1 = df_category.pivot_table(index ='ISSUE_KEY',columns ='OKR_Category', aggfunc=any, fill_value =0)['ISSUE_ID'].reset_index()
 df_category_1.loc[df_category_1['ARR']== 1,'CATEGORY_1'] = 'ARR'
 df_category_1.loc[df_category_1['CYBER']== 1,'CATEGORY_2'] = 'CYBER'
@@ -555,13 +521,7 @@ df_category_1['CATEGORY'] = df_category_1['CATEGORY'].str.replace("::",":").str.
 df_category_1.loc[df_category_1['CATEGORY'].str.startswith(":"),'CATEGORY']=df_category_1['CATEGORY'].str[1:]
 df_category_1.loc[df_category_1['CATEGORY'].str.endswith(":"),'CATEGORY']=df_category_1['CATEGORY'].str[:-1]
 
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### Customers (Concat in one Field)
-
-# COMMAND ----------
-
+#### Customers (Concat in one Field)
 df_customers['Customers_2']=df_customers['Customers'] 
 df_customers_1 = df_customers.pivot_table(index ='ISSUE_KEY',columns ='Customers',values= 'Customers_2', aggfunc=sum, fill_value ='').reset_index()
 list1 = []
@@ -573,14 +533,7 @@ df_customers_1['CUSTOMERS'] = df_customers_1['CUSTOMERS'].str.replace("::",":").
 df_customers_1.loc[df_customers_1['CUSTOMERS'].str.startswith(":"),'CUSTOMERS']=df_customers_1['CUSTOMERS'].str[1:]
 df_customers_1.loc[df_customers_1['CUSTOMERS'].str.endswith(":"),'CUSTOMERS']=df_customers_1['CUSTOMERS'].str[:-1]
 
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### Business Unit (Concat in one Field)
-
-# COMMAND ----------
-
+#### Business Unit (Concat in one Field)
 df_businessUnit['Business_Unit_2']=df_businessUnit['Business_Unit'] 
 df_businessUnit_1 = df_businessUnit.pivot_table(index ='ISSUE_KEY',columns ='Business_Unit',values= 'Business_Unit_2', aggfunc=sum, fill_value ='').reset_index()
 df_businessUnit_1.loc[:,'BU'] = df_businessUnit_1.iloc[:,[1,2,3]].apply(":".join, axis=1)
@@ -589,16 +542,7 @@ df_businessUnit_1['BU'] = df_businessUnit_1['BU'].str.replace("::",":").str.repl
 df_businessUnit_1.loc[df_businessUnit_1['BU'].str.startswith(":"),'BU']=df_businessUnit_1['BU'].str[1:]
 df_businessUnit_1.loc[df_businessUnit_1['BU'].str.endswith(":"),'BU']=df_businessUnit_1['BU'].str[:-1]
 
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### Fix Version (Concat in one Field)
-
-# COMMAND ----------
-
-df_IssueFixVersions
-
+#### Fix Version (Concat in one Field)
 df_IssueFixVersions['VERSION_NAME_2']=df_IssueFixVersions['VERSION_NAME'] 
 df_IssueFixVersions_1 = df_IssueFixVersions.pivot_table(index ='ISSUE_KEY',columns ='VERSION_NAME',values= 'VERSION_NAME_2', aggfunc=sum, fill_value ='').reset_index()
 list1 = []
@@ -610,37 +554,11 @@ df_IssueFixVersions_1['VERSION_NAME'] = df_IssueFixVersions_1['VERSION_NAME'].st
 df_IssueFixVersions_1.loc[df_IssueFixVersions_1['VERSION_NAME'].str.startswith(":"),'VERSION_NAME']=df_IssueFixVersions_1['VERSION_NAME'].str[1:]
 df_IssueFixVersions_1.loc[df_IssueFixVersions_1['VERSION_NAME'].str.endswith(":"),'VERSION_NAME']=df_IssueFixVersions_1['VERSION_NAME'].str[:-1]
 
-
-
-# COMMAND ----------
-
-#df_IssueFixVersions
-
-# COMMAND ----------
-
-#df_IssueFixVersions[df_IssueFixVersions['ISSUE_KEY']=='RPLAT-33566']
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### Clean Issue Sprints (delete duplicated)
-
-# COMMAND ----------
-
+#### Clean Issue Sprints (delete duplicated)
 df_issueSprints = df_issueSprints.sort_values('SPRINT_ID')
 df_issueSprints.drop_duplicates(subset="ISSUE_KEY",keep='last', inplace=True)
 
-# COMMAND ----------
-
-#df_issueSprints[df_issueSprints['ISSUE_KEY']=='RPLAT-15710']
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### THEME (Concat in one field)
-
-# COMMAND ----------
-
+#### THEME (Concat in one field)
 df_theme['THEME']=df_theme['Theme'] 
 df_theme_1 = df_theme.pivot_table(index ='ISSUE_KEY',columns ='Theme',values= 'THEME', aggfunc=sum, fill_value ='').reset_index()
 list1 = []
@@ -654,18 +572,7 @@ df_theme_1.loc[df_theme_1['THEME'].str.endswith(":"),'THEME']=df_theme_1['THEME'
 df_theme_1.loc[df_theme_1['THEME']=='Chain:Supply','THEME']='SuppplyChain'
 df_theme_1.loc[df_theme_1['THEME']=='Product:Single','THEME']='SingleProduct'
 
-
-# COMMAND ----------
-
-#df_theme_1.head()
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### category for IDEAS (Concat in one field)
-
-# COMMAND ----------
-
+#### category for IDEAS (Concat in one field)
 #df_category_idea['IDEA_CATEGORY']=df_category_idea['Category'] 
 #df_category_idea_1 = df_category_idea.pivot_table(index ='ISSUE_KEY',columns ='Category',values= 'IDEA_CATEGORY', aggfunc=sum, fill_value ='').reset_index()
 #list1 = []
@@ -677,18 +584,7 @@ df_theme_1.loc[df_theme_1['THEME']=='Product:Single','THEME']='SingleProduct'
 #df_category_idea_1.loc[df_category_idea_1['IDEA_CATEGORY'].str.startswith(":"),'IDEA_CATEGORY']=df_category_idea_1['IDEA_CATEGORY'].str[1:]
 #df_category_idea_1.loc[df_category_idea_1['IDEA_CATEGORY'].str.endswith(":"),'IDEA_CATEGORY']=df_category_idea_1['IDEA_CATEGORY'].str[:-1]
 
-# COMMAND ----------
-
-#df_category_idea.head()
-#df_category_idea_1.head()
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### FeatureSet for IDEAS (Concat in one field)
-
-# COMMAND ----------
-
+#### FeatureSet for IDEAS (Concat in one field)
 df_feature_set_idea['IDEA_FEATURE_SET']=df_feature_set_idea['Feature_Set'] 
 df_feature_set_idea_1 = df_feature_set_idea.pivot_table(index ='ISSUE_KEY',columns ='Feature_Set',values= 'IDEA_FEATURE_SET', aggfunc=sum, fill_value ='').reset_index()
 list1 = []
@@ -700,18 +596,7 @@ df_feature_set_idea_1['IDEA_FEATURE_SET'] = df_feature_set_idea_1['IDEA_FEATURE_
 df_feature_set_idea_1.loc[df_feature_set_idea_1['IDEA_FEATURE_SET'].str.startswith(":"),'IDEA_FEATURE_SET']=df_feature_set_idea_1['IDEA_FEATURE_SET'].str[1:]
 df_feature_set_idea_1.loc[df_feature_set_idea_1['IDEA_FEATURE_SET'].str.endswith(":"),'IDEA_FEATURE_SET']=df_feature_set_idea_1['IDEA_FEATURE_SET'].str[:-1]
 
-# COMMAND ----------
-
-#df_feature_set_idea.head()
-#df_feature_set_idea_1.head()
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### Key Customer for IDEAS (Concat in one field)
-
-# COMMAND ----------
-
+#### Key Customer for IDEAS (Concat in one field)
 df_key_customer_idea['IDEA_KEY_CUSTOMERS']=df_key_customer_idea['Key_Customers'] 
 df_key_customer_idea_1 = df_key_customer_idea.pivot_table(index ='ISSUE_KEY',columns ='Key_Customers',values= 'IDEA_KEY_CUSTOMERS', aggfunc=sum, fill_value ='').reset_index()
 list1 = []
@@ -723,17 +608,7 @@ df_key_customer_idea_1['IDEA_KEY_CUSTOMERS'] = df_key_customer_idea_1['IDEA_KEY_
 df_key_customer_idea_1.loc[df_key_customer_idea_1['IDEA_KEY_CUSTOMERS'].str.startswith(":"),'IDEA_KEY_CUSTOMERS']=df_key_customer_idea_1['IDEA_KEY_CUSTOMERS'].str[1:]
 df_key_customer_idea_1.loc[df_key_customer_idea_1['IDEA_KEY_CUSTOMERS'].str.endswith(":"),'IDEA_KEY_CUSTOMERS']=df_key_customer_idea_1['IDEA_KEY_CUSTOMERS'].str[:-1]
 
-# COMMAND ----------
-
-#df_key_customer_idea_1.head()
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ### Join datasources and Consolidate one table complete
-
-# COMMAND ----------
-
+### Join datasources and Consolidate one table complete
 df_full = pd.merge(df_issues, df_issueSprints, on =['ISSUE_ID','ISSUE_KEY'],how = 'left')
 df_full = pd.merge(df_full, df_IssueFixVersions_1, on =['ISSUE_KEY'],how = 'left')
 df_full = pd.merge(df_full, df_businessUnit_1, on =['ISSUE_KEY'],how = 'left')
@@ -742,17 +617,7 @@ df_full = pd.merge(df_full, df_category_1, on =['ISSUE_KEY'],how = 'left')
 df_full = pd.merge(df_full, df_theme_1, on =['ISSUE_KEY'],how = 'left')
 df_full = pd.merge(df_full, df_Sprints, on =['SPRINT_ID','SPRINT_NAME'],how = 'left')
 
-# COMMAND ----------
-
-#df_full.head()
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### Create Dataframe for IDEAS/PR
-
-# COMMAND ----------
-
+#### Create Dataframe for IDEAS/PR
 df_issues_s = df_full[['CREATED','ISSUE_ID','ISSUE_KEY','SUMMARY','ISSUE_TYPE_NAME','ISSUE_STATUS_NAME',
                          'SPRINT_ID','SPRINT_NAME','STATE','START_DATE','END_DATE','COMPLETE_DATE',
                          'VERSION_NAME',
@@ -767,16 +632,7 @@ df_issues_s = df_issues_s.rename(columns={"Story_Points_10400":"STORYPOINTS",
                               "Progress___11891":"PROGRESS"
                              })
 
-
-
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### Create Dataframe for linked issues (Epics)
-
-# COMMAND ----------
-
+#### Create Dataframe for linked issues (Epics)
 df_issues_s_2 = df_issues_s[['ISSUE_ID','ISSUE_KEY','SUMMARY','ISSUE_TYPE_NAME','ISSUE_STATUS_NAME','CURRENT_ASSIGNEE_NAME'
                              ,'SPRINT_NAME','START_DATE','END_DATE','VERSION_NAME','CATEGORY','BU','CUSTOMERS',
                             'THEME',
@@ -797,46 +653,20 @@ df_issues_s_2 = df_issues_s_2.rename(columns={"ISSUE_ID": "LINKED_1_ISSUE_ID",
                               "THEME":"LINKED_1_THEME",                
                               "STORYPOINTS":"LINKED_1_STORYPOINTS",
                               "PROGRESS":"LINKED_1_PROGRESS"
-                             })
+                             }) 
 
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### Join ISSUES WITH issueLinks
-
-# COMMAND ----------
-
+#### Join ISSUES WITH issueLinks
 df_issues_1 = pd.merge(df_issues_s,df_issueLinks,on =['ISSUE_ID','ISSUE_KEY'],how="left")
-
-# COMMAND ----------
-
 df_issues_1 = df_issues_1.rename(columns={"LINKED_ISSUE_ID":"LINKED_1_ISSUE_ID", 
                             "LINKED_ISSUE_KEY":"LINKED_1_ISSUE_KEY",
                             "DIRECTION":"DIRECTION_1",
                             "TYPE":"TYPE_1"
                              })
 
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### Enrichment ISSUES WITH Epics Dataframe
-
-# COMMAND ----------
-
+#### Enrichment ISSUES WITH Epics Dataframe
 df_issues_2 = pd.merge(df_issues_1, df_issues_s_2,on=['LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_ID'],how="left")
 
-# COMMAND ----------
-
-#df_issues_2.head()
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ### Product Requests (PR) - Data Preparation
-
-# COMMAND ----------
-
+### Product Requests (PR) - Data Preparation
 df_PR = df_issues_2[df_issues_2['ISSUE_TYPE_NAME'].str.startswith('Product Request')][['CREATED','ISSUE_KEY','SUMMARY',
                                                                        'ISSUE_TYPE_NAME','ISSUE_STATUS_NAME',
                                                                         'CURRENT_ASSIGNEE_NAME',
@@ -852,13 +682,7 @@ df_PR = df_issues_2[df_issues_2['ISSUE_TYPE_NAME'].str.startswith('Product Reque
         'LINKED_1_THEME',
         'LINKED_1_STORYPOINTS','LINKED_1_PROGRESS'
          ]]
-
-# COMMAND ----------
-
 df_PR = df_PR[(df_PR['TYPE_1']=='Depends')&(df_PR['DIRECTION_1']=='Outward')]
-
-# COMMAND ----------
-
 df_issues_PR_1 = df_issues_2[(df_issues_2['ISSUE_TYPE_NAME']!='Product Request')
                              &(df_issues_2['PARENT_ISSUE_KEY'].notnull())][['CREATED','ISSUE_KEY','SUMMARY',
                                                                               'ISSUE_TYPE_NAME','ISSUE_STATUS_NAME',
@@ -899,12 +723,7 @@ df_issues_PR_1 = df_issues_PR_1.rename(columns={"CREATED": "CHILD_CREATED",
                               'PARENT_ISSUE_KEY':'LINKED_1_ISSUE_KEY'                  
                              })
 
-# COMMAND ----------
-
 df_PR_1 = pd.merge(df_PR, df_issues_PR_1,how='left', on='LINKED_1_ISSUE_KEY')
-
-# COMMAND ----------
-
 df_sub_PR_1 = df_issues_2[(df_issues_2['ISSUE_TYPE_NAME']!='Product Request')
                              &(df_issues_2['PARENT_ISSUE_KEY'].notnull())][['CREATED','ISSUE_KEY','SUMMARY',
                                                                               'ISSUE_TYPE_NAME','ISSUE_STATUS_NAME',
@@ -918,8 +737,6 @@ df_sub_PR_1 = df_issues_2[(df_issues_2['ISSUE_TYPE_NAME']!='Product Request')
                                                                             'THEME',
                                                                             'STORYPOINTS','PROGRESS','PARENT_ISSUE_KEY'
                                                                              ]]
-
-
 df_sub_PR_1 = df_sub_PR_1.rename(columns={"CREATED": "SUB_CREATED", 
                               "ISSUE_KEY": "SUB_ISSUE_KEY",
                               "SUMMARY": "SUB_SUMMARY", 
@@ -945,11 +762,7 @@ df_sub_PR_1 = df_sub_PR_1.rename(columns={"CREATED": "SUB_CREATED",
                               'PARENT_ISSUE_KEY':'CHILD_ISSUE_KEY'                  
                              })
 
-# COMMAND ----------
-
 df_PR_f = pd.merge(df_PR_1, df_sub_PR_1,how='left', on='CHILD_ISSUE_KEY')
-
-# COMMAND ----------
 
 df_PR_f.loc[df_PR_f['SUB_ISSUE_KEY'].notnull(),'TOTAL_STORYPOINTS']= df_PR_f['SUB_STORYPOINTS']
 df_PR_f.loc[(df_PR_f['TOTAL_STORYPOINTS'].isnull())&
@@ -960,41 +773,9 @@ df_PR_f.loc[(df_PR_f['TOTAL_STORYPOINTS'].isnull())&
             (df_PR_f['CHILD_ISSUE_KEY'].isnull())&
             (df_PR_f['LINKED_1_ISSUE_KEY'].notnull()),'TOTAL_STORYPOINTS']= df_PR_f['LINKED_1_STORYPOINTS']
 
-# COMMAND ----------
-
-#df_PR_f.tail(30)[['LINKED_1_STORYPOINTS','CHILD_STORYPOINTS','SUB_STORYPOINTS','TOTAL_STORYPOINTS']]
-
-# COMMAND ----------
-
-#df_PR_f[df_PR_f['SUB_ISSUE_KEY']=='RPLAT-38379'][['SUB_ISSUE_KEY','SUB_ISSUE_TYPE_NAME','SUB_SPRINT_NAME','CHILD_ISSUE_KEY','CHILD_SPRINT_NAME','CHILD_ISSUE_TYPE_NAME']]
-
-# COMMAND ----------
-
-#df_issues[df_issues['ISSUE_KEY']=='PR-732']
-#df_PR_f[df_PR_f['ISSUE_KEY']=='PR-732'].head()
-
-# COMMAND ----------
-
-##df_PR_sub_not_Null = df_PR_f[(df_PR_f['SUB_ISSUE_KEY'].notnull())]
-
-# COMMAND ----------
-
-#df_versions['VERSION_ID'].count()
-
-# COMMAND ----------
-
-#df_versions = df_versions.sort_values('START_DATE')
-
-# COMMAND ----------
-
-#df_versions.head()
-
-# COMMAND ----------
-
+# Assign version from CHILD SPRINT START DATE
 df_versions['START_DATE_m'] = df_versions['RELEASE_DATE']+pd.Timedelta(days=1)
 df_versions['START_DATE_2_m'] = df_versions['RELEASE_DATE']+pd.Timedelta(seconds=86399)
-
-# COMMAND ----------
 
 for i in range(0,df_versions['VERSION_ID'].count()):
     START_DATE = df_versions.iloc[i-1,10] 
@@ -1006,10 +787,8 @@ for i in range(0,df_versions['VERSION_ID'].count()):
     VERSION = i_m+" "+df_versions.iloc[i,1]
     if VERSION == '00 v8.4 Chihuahua':
         START_DATE='2021-09-27 00:00:00+00:00'
-    
     #START_DATE = START_DATE.replace("00:00:00+00:00","23:59:59+00:00")
     #END_DATE = END_DATE
-    
     df_PR_f.loc[(df_PR_f['CHILD_SPRINT_START_DATE']>=START_DATE)
                 &(df_PR_f['CHILD_SPRINT_START_DATE']<=END_DATE),'CHILD_SPRINT_DATE_VERSION']= VERSION
     df_PR_f.loc[(df_PR_f['CHILD_SPRINT_END_DATE']>=START_DATE)
@@ -1017,49 +796,16 @@ for i in range(0,df_versions['VERSION_ID'].count()):
     #df_PR_f.loc[(df_PR_f['STATUS_DATE_VERSION'].isnull())&(df_PR_f['CHILD_STATUS_CATEGORY_CHANGE_DATE']>START_DATE)&(df_PR_f['CHILD_STATUS_CATEGORY_CHANGE_DATE']>END_DATE),'STATUS_DATE_VERSION']= VERSION
     print(START_DATE,END_DATE,VERSION)
     
+try:
+  print('JIRA PRs UPLOAD to BIGQUERY')
+  table = "saas-analytics-io.processed.jira_processed_PR"
+  df_PR_f.to_gbq(table, if_exists='replace')
+  print('JIRA PRs FULL DATA write in BQ --> done')
+except Exception as e:
+  print('error: ',e)
 
-#df_PR_f.loc[((df_PR_f['SUB_STATUS_CATEGORY_CHANGE_DATE']>df_versions['START_DATE'])(df_PR_f['SUB_STATUS_CATEGORY_CHANGE_DATE']>df_versions['START_DATE'])]
 
-# COMMAND ----------
-
-#df_PR_f[df_PR_f['CHILD_ISSUE_KEY']=='RPLAT-38379']
-
-# COMMAND ----------
-
-#df_PR_f['CHILD_SPRINT_START_DATE'].count()
-
-# COMMAND ----------
-
-#print(df_PR_f[df_PR_f['CHILD_SPRINT_DATE_VERSION'].isnull()].count()['CREATED'])
-#print(df_PR_f[df_PR_f['CHILD_SPRINT_DATE_VERSION'].notnull()].count()['CREATED'])
-
-# COMMAND ----------
-
-#df_PR_f.tail()
-            
-
-# COMMAND ----------
-
-table = "saas-analytics-io.processed.jira_processed_PR"
-df_PR_f.to_gbq(table, if_exists='replace')
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ### IDEA Tickets - Data Preparation
-
-# COMMAND ----------
-
-#df_issues_2[df_issues_2['ISSUE_KEY'].str.startswith('IDEA')].fillna(0).groupby(['TYPE_1','DIRECTION_1']).count()
-
-# COMMAND ----------
-
-#df_issues_2[(df_issues_2['ISSUE_KEY'].str.startswith('IDEA'))&
-#            (df_issues_2['TYPE_1'].str.startswith('Polaris issue link'))&
-#           (df_issues_2['ISSUE_KEY']=='IDEA-8')]
-
-# COMMAND ----------
-
+### IDEA Tickets - Data Preparation
 df_IDEA = df_issues_2[(df_issues_2['ISSUE_TYPE_NAME'].str.startswith('Idea'))&(df_issues_2['TYPE_1'].str.startswith('Polaris issue'))][['CREATED','ISSUE_KEY','SUMMARY',
                                                                        'ISSUE_TYPE_NAME','ISSUE_STATUS_NAME',
                                                                         'CURRENT_ASSIGNEE_NAME',
@@ -1076,15 +822,10 @@ df_IDEA = df_issues_2[(df_issues_2['ISSUE_TYPE_NAME'].str.startswith('Idea'))&(d
         'LINKED_1_STORYPOINTS','LINKED_1_PROGRESS'
         #,'__Effort_12125','Layout_12166'
          ]]
-#df_IDEA = df_IDEA.rename(columns={'__Effort_12125':'EFFORT','Layout_12166':'LAYOUT'})
-
-# COMMAND ----------
 
 #df_IDEA = pd.merge(df_IDEA, df_category_idea_1, on =['ISSUE_KEY'],how = 'left')
 df_IDEA = pd.merge(df_IDEA, df_feature_set_idea_1, on =['ISSUE_KEY'],how = 'left')
 df_IDEA = pd.merge(df_IDEA, df_key_customer_idea_1, on =['ISSUE_KEY'],how = 'left')
-
-# COMMAND ----------
 
 df_issues_IDEA_1 = df_issues_2[(df_issues_2['ISSUE_TYPE_NAME']!='Idea')
                              &(df_issues_2['PARENT_ISSUE_KEY'].notnull())][['CREATED','ISSUE_KEY','SUMMARY',
@@ -1127,12 +868,7 @@ df_issues_IDEA_1 = df_issues_IDEA_1.rename(columns={"CREATED": "CHILD_CREATED",
                               'PARENT_ISSUE_KEY':'LINKED_1_ISSUE_KEY'                   
                              })
 
-# COMMAND ----------
-
 df_YTEM_1 = pd.merge(df_IDEA, df_issues_IDEA_1,how='left', on='LINKED_1_ISSUE_KEY')
-
-# COMMAND ----------
-
 df_sub_YTEM_1 = df_issues_2[(df_issues_2['ISSUE_TYPE_NAME']!='Idea')
                              &(df_issues_2['PARENT_ISSUE_KEY'].notnull())][['CREATED','ISSUE_KEY','SUMMARY',
                                                                               'ISSUE_TYPE_NAME','ISSUE_STATUS_NAME',
@@ -1173,12 +909,8 @@ df_sub_YTEM_1 = df_sub_YTEM_1.rename(columns={"CREATED": "SUB_CREATED",
                               'PARENT_ISSUE_KEY':'CHILD_ISSUE_KEY'                  
                              })
 
-# COMMAND ----------
-
+df_sub_YTEM_1 = df_sub_YTEM_1.drop_duplicates()
 df_YTEM_1 = pd.merge(df_YTEM_1, df_sub_YTEM_1,how='left', on='CHILD_ISSUE_KEY')
-
-# COMMAND ----------
-
 df_YTEM_1.loc[df_YTEM_1['SUB_ISSUE_KEY'].notnull(),'TOTAL_STORYPOINTS']= df_YTEM_1['SUB_STORYPOINTS']
 df_YTEM_1.loc[(df_YTEM_1['TOTAL_STORYPOINTS'].isnull())&
             (df_YTEM_1['SUB_ISSUE_KEY'].isnull())&
@@ -1188,7 +920,10 @@ df_YTEM_1.loc[(df_YTEM_1['TOTAL_STORYPOINTS'].isnull())&
             (df_YTEM_1['CHILD_ISSUE_KEY'].isnull())&
             (df_YTEM_1['LINKED_1_ISSUE_KEY'].notnull()),'TOTAL_STORYPOINTS']= df_YTEM_1['LINKED_1_STORYPOINTS']
 
-# COMMAND ----------
+selected_cols = ['SUB_ISSUE_KEY','SUB_SUMMARY','SUB_ISSUE_TYPE_NAME','SUB_ISSUE_STATUS_NAME','SUB_SPRINT_NAME',
+                 'SUB_SPRINT_STATE','SUB_VERSION_NAME','SUB_ASSIGNEE_NAME','SUB_REPORTER_NAME','SUB_CATEGORY','SUB_BU',
+                 'SUB_CUSTOMERS']
+df_YTEM_1[selected_cols]=df_YTEM_1[selected_cols].fillna('')
 
 for i in range(0,df_versions['VERSION_ID'].count()):
     START_DATE = df_versions.iloc[i-1,10] 
@@ -1211,33 +946,29 @@ for i in range(0,df_versions['VERSION_ID'].count()):
     #df_PR_f.loc[(df_PR_f['STATUS_DATE_VERSION'].isnull())&(df_PR_f['CHILD_STATUS_CATEGORY_CHANGE_DATE']>START_DATE)&(df_PR_f['CHILD_STATUS_CATEGORY_CHANGE_DATE']>END_DATE),'STATUS_DATE_VERSION']= VERSION
     print(START_DATE,END_DATE,VERSION)
 
-# COMMAND ----------
+##TEAM ALLOCATED
+url_1 = 'https://docs.google.com/spreadsheets/d/1P7E-y7eA9-pEIevrBUDztreDWjlI4D4QyyO6eo8AKDk/edit#gid=0'
+url = url_1.replace('/edit#gid=', '/export?format=csv&gid=')
+df_areas = pd.read_csv(url, dtype=str)
 
-# MAGIC %md
-# MAGIC #### Upload Data to BigQuery table
-# MAGIC - saas-analytics-io.processed.jira_processed_IDEAS
+df_YTEM_1= pd.merge(df_YTEM_1,df_areas, how='inner', left_on='SUB_ASSIGNEE_NAME', right_on='NAME')
+df_YTEM_1.rename(columns={'NAME_ID':'SUB_ASSIGNEE_NAME_ID','AREA_ID':'SUBASSIGNEE_AREA_ID',
+                          'AREA':'SUB_ASSIGNEE_AREA','TRACKING_PHASE':'SUB_ASSIGNEE_TRACK_PHASE',
+                         'DEPARTMENT':'SUB_ASSIGNEE_DEPARTMENT'}, inplace=True)
+df_YTEM_1.drop('NAME', axis=1, inplace=True)
 
-# COMMAND ----------
 
+#### Upload Data to BigQuery table
+#saas-analytics-io.processed.jira_processed_IDEAS
 print('Write in BQ saas-analytics-io.processed.jira_processed_IDEAS')
 try:
   table = "saas-analytics-io.processed.jira_processed_IDEAS"
   df_YTEM_1.to_gbq(table, if_exists='replace')
-  print('JIRA FULL DATA write in BQ --> done')
+  print('JIRA IDEAS FULL DATA write in BQ --> done')
 except Exception as e:
-  print('Error:',e)
+  print('Error: ',e)
 
-# COMMAND ----------
-
-#df_YTEM_1[df_YTEM_1['CHILD_ISSUE_KEY']=='RPLAT-38379']
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ### Customer Aggregation for PR
-
-# COMMAND ----------
-
+### Customer Aggregation for PR
 df_customers_agg = pd.merge(df_customers,df_PR_f[['LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_BU','LINKED_1_VERSION_NAME',
                                                   'CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION',
                                                   'SUB_ISSUE_KEY','SUB_STATUS_CATEGORY_CHANGE_DATE','SUB_STORYPOINTS']],how='inner',left_on = 'ISSUE_KEY',right_on='LINKED_1_ISSUE_KEY')
@@ -1249,14 +980,7 @@ df_customers_adj = df_customers_adj.rename(columns={'Customers':'CUSTOMERS_COUNT
 df_customers_agg = pd.merge(df_customers_agg,df_customers_adj,how='left', on='LINKED_1_ISSUE_KEY')
 df_customers_agg.loc[:,'ADJ_STORYPOINTS']= df_customers_agg['SUB_STORYPOINTS']/df_customers_agg['CUSTOMERS_COUNT']
 
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ### Category Aggregation for PR
-
-# COMMAND ----------
-
+### Category Aggregation for PR
 df_category_agg = pd.merge(df_category[['ISSUE_KEY','OKR_Category']],df_PR_f[['LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_BU','LINKED_1_VERSION_NAME',
                                                   'CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION',
                                                   'SUB_ISSUE_KEY','SUB_STATUS_CATEGORY_CHANGE_DATE','SUB_STORYPOINTS']],how='inner',left_on = 'ISSUE_KEY',right_on='LINKED_1_ISSUE_KEY')
@@ -1268,19 +992,9 @@ df_category_adj = df_category_adj.rename(columns={'OKR_Category':'CATEGORY_COUNT
 df_category_agg = pd.merge(df_category_agg,df_category_adj,how='left', on='LINKED_1_ISSUE_KEY')
 df_category_agg.loc[:,'ADJ_STORYPOINTS']= df_category_agg['SUB_STORYPOINTS']/df_category_agg['CATEGORY_COUNT']
 
-# COMMAND ----------
-
-#df_customers_agg.sample(10)
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### Upload Customer and Category aggregation to BigQuery
-# MAGIC - saas-analytics-io.processed.jira_processed_PR_customers
-# MAGIC - saas-analytics-io.processed.jira_processed_PR_category
-
-# COMMAND ----------
-
+#### Upload Customer and Category aggregation to BigQuery
+#  - saas-analytics-io.processed.jira_processed_PR_customers
+#  - saas-analytics-io.processed.jira_processed_PR_category
 print('Write in BQ saas-analytics-io.processed.jira_processed_PR_customers')
 try:
   table = "saas-analytics-io.processed.jira_processed_PR_customers"
@@ -1288,7 +1002,7 @@ try:
   print('PR Customers write in BQ --> done')
 except Exception as e:
   print('Error:',e)
-
+  
 print('Write in BQ saas-analytics-io.processed.jira_processed_PR_category')
 try:
   table = "saas-analytics-io.processed.jira_processed_PR_category"
@@ -1297,26 +1011,7 @@ try:
 except Exception as e:
   print('Error:',e)
 
-# COMMAND ----------
-
-#df_customers_agg[df_customers_agg['CHILD_SPRINT_DATE_VERSION']=='12 v8.17 Deer']
-#df_customers_agg.groupby('CUSTOMERS').count()
-
-# COMMAND ----------
-
-#df_category_agg[df_category_agg['SUB_ISSUE_KEY'].duplicated()]
-
-# COMMAND ----------
-
-#df_customers[df_customers['ISSUE_KEY']=='RPLAT-21308']
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ### Customer Aggregation for IDEA
-
-# COMMAND ----------
-
+### Customer Aggregation for IDEA
 df_customers_ideas_agg = pd.merge(df_customers,df_YTEM_1[['LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_BU','LINKED_1_VERSION_NAME',
                                                   'CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION',
                                                   'SUB_ISSUE_KEY','SUB_STATUS_CATEGORY_CHANGE_DATE','SUB_STORYPOINTS']],how='inner',left_on = 'ISSUE_KEY',right_on='LINKED_1_ISSUE_KEY')
@@ -1328,13 +1023,7 @@ df_customers_ideas_adj = df_customers_ideas_adj.rename(columns={'Customers':'CUS
 df_customers_ideas_agg = pd.merge(df_customers_ideas_agg,df_customers_ideas_adj,how='left', on='LINKED_1_ISSUE_KEY')
 df_customers_ideas_agg.loc[:,'ADJ_STORYPOINTS']= df_customers_ideas_agg['SUB_STORYPOINTS']/df_customers_ideas_agg['CUSTOMERS_COUNT']
 
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ### Category Aggregation for IDEA
-
-# COMMAND ----------
-
+### Category Aggregation for IDEA
 df_category_ideas_agg = pd.merge(df_category[['ISSUE_KEY','OKR_Category']],df_YTEM_1[['LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_BU','LINKED_1_VERSION_NAME',
                                                   'CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION',
                                                   'SUB_ISSUE_KEY','SUB_STATUS_CATEGORY_CHANGE_DATE','SUB_STORYPOINTS']],how='inner',left_on = 'ISSUE_KEY',right_on='LINKED_1_ISSUE_KEY')
@@ -1346,15 +1035,9 @@ df_category_ideas_adj = df_category_ideas_adj.rename(columns={'OKR_Category':'CA
 df_category_ideas_agg = pd.merge(df_category_ideas_agg,df_category_ideas_adj,how='left', on='LINKED_1_ISSUE_KEY')
 df_category_ideas_agg.loc[:,'ADJ_STORYPOINTS']= df_category_ideas_agg['SUB_STORYPOINTS']/df_category_ideas_agg['CATEGORY_COUNT']
 
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### Upload Customer and Category aggregation to BigQuery
-# MAGIC - saas-analytics-io.processed.jira_processed_IDEAS_customers
-# MAGIC - saas-analytics-io.processed.jira_processed_IDEAS_category
-
-# COMMAND ----------
-
+#### Upload Customer and Category aggregation to BigQuery
+# - saas-analytics-io.processed.jira_processed_IDEAS_customers
+# - saas-analytics-io.processed.jira_processed_IDEAS_category
 print('Write in BQ saas-analytics-io.processed.jira_processed_IDEAS_customers')
 try:
   table = "saas-analytics-io.processed.jira_processed_IDEAS_customers"
@@ -1371,108 +1054,84 @@ try:
 except Exception as e:
   print('Error:',e)
 
+# Worklogs DataPreparation and Enhancement
+### Join PR AND IDEAS tickets with subtasks, childs, linked
+#df_PR_worklogs_sub = df_PR_f[['ISSUE_KEY'
+ #                         ,'LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_TYPE_NAME','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_VERSION_NAME'
+  #                        ,'CHILD_ISSUE_KEY','CHILD_ISSUE_TYPE_NAME','CHILD_ISSUE_STATUS_NAME','CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION','CHILD_SPRINT_NAME'
+   #                       ,'SUB_ISSUE_KEY','SUB_ISSUE_TYPE_NAME','SUB_ISSUE_STATUS_NAME','SUB_STATUS_CATEGORY_CHANGE_DATE','SUB_PROGRESS','SUB_SPRINT_NAME'
+    #                      ,'TOTAL_STORYPOINTS']].drop_duplicates()
 
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC # Worklogs DataPreparation and Enhancement
-# MAGIC ### Join PR AND IDEAS tickets with subtasks, childs, linked
-
-# COMMAND ----------
-
-#df_worklog_1.head()
-
-# COMMAND ----------
-
-
-df_PR_worklogs_sub = df_PR_f[['ISSUE_KEY'
-                          ,'LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_TYPE_NAME','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_VERSION_NAME'
-                          ,'CHILD_ISSUE_KEY','CHILD_ISSUE_TYPE_NAME','CHILD_ISSUE_STATUS_NAME','CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION'
-                          ,'SUB_ISSUE_KEY','SUB_ISSUE_TYPE_NAME','SUB_ISSUE_STATUS_NAME','SUB_STATUS_CATEGORY_CHANGE_DATE','SUB_PROGRESS'
-                          ,'TOTAL_STORYPOINTS']].drop_duplicates()
-
-df_PR_worklogs_child = df_PR_f[(df_PR_f['CHILD_ISSUE_KEY'].notnull())&(df_PR_f['SUB_ISSUE_KEY'].isnull())][['ISSUE_KEY'
-                          ,'LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_TYPE_NAME','LINKED_1_ISSUE_STATUS_NAME'
-                          ,'CHILD_ISSUE_KEY','CHILD_ISSUE_TYPE_NAME','CHILD_ISSUE_STATUS_NAME','CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION'
+#df_PR_worklogs_child = df_PR_f[(df_PR_f['CHILD_ISSUE_KEY'].notnull())&(df_PR_f['SUB_ISSUE_KEY'].isnull())][['ISSUE_KEY'
+#                          ,'LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_TYPE_NAME','LINKED_1_ISSUE_STATUS_NAME'
+ #                         ,'CHILD_ISSUE_KEY','CHILD_ISSUE_TYPE_NAME','CHILD_ISSUE_STATUS_NAME','CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION','CHILD_SPRINT_NAME'
                           #,'SUB_ISSUE_KEY','SUB_ISSUE_TYPE_NAME','SUB_ISSUE_STATUS_NAME','SUB_STATUS_CATEGORY_CHANGE_DATE'
-                          ,'TOTAL_STORYPOINTS','SUB_PROGRESS']].drop_duplicates()
-
+  #                        ,'TOTAL_STORYPOINTS','SUB_PROGRESS']].drop_duplicates()
 df_IDEAS_worklogs_sub = df_YTEM_1[['ISSUE_KEY'
                           ,'LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_TYPE_NAME','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_VERSION_NAME'
-                          ,'CHILD_ISSUE_KEY','CHILD_ISSUE_TYPE_NAME','CHILD_ISSUE_STATUS_NAME','CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION'
-                          ,'SUB_ISSUE_KEY','SUB_ISSUE_TYPE_NAME','SUB_ISSUE_STATUS_NAME','SUB_STATUS_CATEGORY_CHANGE_DATE','SUB_PROGRESS'
+                          ,'CHILD_ISSUE_KEY','CHILD_ISSUE_TYPE_NAME','CHILD_ISSUE_STATUS_NAME','CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION','CHILD_SPRINT_NAME'
+                          ,'SUB_ISSUE_KEY','SUB_ISSUE_TYPE_NAME','SUB_ISSUE_STATUS_NAME','SUB_STATUS_CATEGORY_CHANGE_DATE','SUB_PROGRESS','SUB_SPRINT_NAME'
                           ,'TOTAL_STORYPOINTS']].drop_duplicates()
 
 df_IDEAS_worklogs_child = df_YTEM_1[(df_YTEM_1['CHILD_ISSUE_KEY'].notnull())&(df_YTEM_1['SUB_ISSUE_KEY'].isnull())][['ISSUE_KEY'
                           ,'LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_TYPE_NAME','LINKED_1_ISSUE_STATUS_NAME'
-                          ,'CHILD_ISSUE_KEY','CHILD_ISSUE_TYPE_NAME','CHILD_ISSUE_STATUS_NAME','CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION'
+                          ,'CHILD_ISSUE_KEY','CHILD_ISSUE_TYPE_NAME','CHILD_ISSUE_STATUS_NAME','CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION','CHILD_SPRINT_NAME'
                           #,'SUB_ISSUE_KEY','SUB_ISSUE_TYPE_NAME','SUB_ISSUE_STATUS_NAME','SUB_STATUS_CATEGORY_CHANGE_DATE'
                           ,'TOTAL_STORYPOINTS','SUB_PROGRESS']].drop_duplicates()
 
-
-# COMMAND ----------
-
 df_worklog_U = df_worklog_1[['ISSUE_KEY_LOGGED','ISSUE_TYPE_NAME_LOGGED','AUTHOR_NAME','UPDATE_NAME','START_DATE','LOGGED_TIME','CREATED','UPDATED','PROGRESS_LOGGED','STORYPOINTS_LOGGED']]
-
-# COMMAND ----------
-
-df_worklog_enh = pd.merge(df_worklog_U,df_PR_worklogs_sub, left_on = 'ISSUE_KEY_LOGGED', right_on = 'SUB_ISSUE_KEY',how = 'left')
-
-# COMMAND ----------
+#df_worklog_enh = pd.merge(df_worklog_U,df_PR_worklogs_sub, left_on = 'ISSUE_KEY_LOGGED', right_on = 'SUB_ISSUE_KEY',how = 'left')
+df_worklog_enh_3 = pd.merge(df_worklog_U,df_IDEAS_worklogs_sub, left_on = 'ISSUE_KEY_LOGGED', right_on = 'SUB_ISSUE_KEY',how = 'left')
 
 ## Worklog enrich with CHILD ISSUES 
+## Worklog enrich with CHILD ISSUES 
 
-df_worklog_child = pd.DataFrame()
-df_worklog_enh_2 = df_worklog_enh[~(df_worklog_enh['ISSUE_KEY_LOGGED'].isin(df_PR_worklogs_child['CHILD_ISSUE_KEY']))]
-for index,row in df_PR_worklogs_child.iterrows():
-    df_worklog_row = df_worklog_enh[(df_worklog_enh['ISSUE_KEY_LOGGED']==row['CHILD_ISSUE_KEY'])]
-    df_worklog_row.loc[:,'ISSUE_KEY']= row['ISSUE_KEY']
-    df_worklog_row.loc[:,'LINKED_1_ISSUE_KEY']= row['LINKED_1_ISSUE_KEY']
-    df_worklog_row.loc[:,'LINKED_1_ISSUE_TYPE_NAME']= row['LINKED_1_ISSUE_TYPE_NAME']
-    df_worklog_row.loc[:,'LINKED_1_ISSUE_STATUS_NAME']= row['LINKED_1_ISSUE_STATUS_NAME'] 
-    df_worklog_row.loc[:,'CHILD_ISSUE_KEY'] = row['LINKED_1_ISSUE_KEY']
-    df_worklog_row.loc[:,'CHILD_ISSUE_TYPE_NAME'] = row['CHILD_ISSUE_TYPE_NAME']
-    df_worklog_row.loc[:,'CHILD_ISSUE_STATUS_NAME'] = row['CHILD_ISSUE_STATUS_NAME']
-    df_worklog_row.loc[:,'CHILD_SPRINT_DATE_VERSION'] = row['CHILD_SPRINT_DATE_VERSION']
-    df_worklog_row.loc[:,'CHILD_SPRINT_END_DATE_VERSION'] = row['CHILD_SPRINT_END_DATE_VERSION']
-    df_worklog_row.loc[:,'TOTAL_STORYPOINTS'] = row['TOTAL_STORYPOINTS']
-    df_worklog_child = df_worklog_child.append(df_worklog_row)
-
-df_worklog_enh_2 = df_worklog_enh_2.append(df_worklog_child)
+#df_worklog_child = pd.DataFrame()
+#df_worklog_enh_2 = df_worklog_enh[~(df_worklog_enh['ISSUE_KEY_LOGGED'].isin(df_PR_worklogs_child['CHILD_ISSUE_KEY']))]
+#for index,row in df_PR_worklogs_child.iterrows():
+#    df_worklog_row = df_worklog_enh[(df_worklog_enh['ISSUE_KEY_LOGGED']==row['CHILD_ISSUE_KEY'])]
+#    df_worklog_row.loc[:,'ISSUE_KEY']= row['ISSUE_KEY']
+#    df_worklog_row.loc[:,'LINKED_1_ISSUE_KEY']= row['LINKED_1_ISSUE_KEY']
+#    df_worklog_row.loc[:,'LINKED_1_ISSUE_TYPE_NAME']= row['LINKED_1_ISSUE_TYPE_NAME']
+#    df_worklog_row.loc[:,'LINKED_1_ISSUE_STATUS_NAME']= row['LINKED_1_ISSUE_STATUS_NAME'] 
+#    df_worklog_row.loc[:,'CHILD_ISSUE_KEY'] = row['LINKED_1_ISSUE_KEY']
+#    df_worklog_row.loc[:,'CHILD_ISSUE_TYPE_NAME'] = row['CHILD_ISSUE_TYPE_NAME']
+#    df_worklog_row.loc[:,'CHILD_ISSUE_STATUS_NAME'] = row['CHILD_ISSUE_STATUS_NAME']
+#    df_worklog_row.loc[:,'CHILD_SPRINT_DATE_VERSION'] = row['CHILD_SPRINT_DATE_VERSION']
+#    df_worklog_row.loc[:,'CHILD_SPRINT_END_DATE_VERSION'] = row['CHILD_SPRINT_END_DATE_VERSION']
+#    df_worklog_row.loc[:,'CHILD_SPRINT_NAME'] = row['CHILD_SPRINT_NAME']
+#    df_worklog_row.loc[:,'TOTAL_STORYPOINTS'] = row['TOTAL_STORYPOINTS']
+#    df_worklog_child = df_worklog_child.append(df_worklog_row)
+#
+#df_worklog_enh_2 = df_worklog_enh_2.append(df_worklog_child)
 
 
 ## Worklog enrich with IDEAS SUB ISSUES 
 
-df_worklog_sub_idea = pd.DataFrame()
-df_worklog_enh_3 = df_worklog_enh_2[~(df_worklog_enh_2['ISSUE_KEY_LOGGED'].isin(df_IDEAS_worklogs_sub['SUB_ISSUE_KEY']))]
-for index,row in df_IDEAS_worklogs_sub.iterrows():
-    df_worklog_row = df_worklog_enh_2[(df_worklog_enh_2['ISSUE_KEY_LOGGED']==row['SUB_ISSUE_KEY'])]
-    df_worklog_row.loc[:,'ISSUE_KEY']= row['ISSUE_KEY']
-    df_worklog_row.loc[:,'LINKED_1_ISSUE_KEY']= row['LINKED_1_ISSUE_KEY']
-    df_worklog_row.loc[:,'LINKED_1_ISSUE_TYPE_NAME']= row['LINKED_1_ISSUE_TYPE_NAME']
-    df_worklog_row.loc[:,'LINKED_1_ISSUE_STATUS_NAME']= row['LINKED_1_ISSUE_STATUS_NAME'] 
-    df_worklog_row.loc[:,'CHILD_ISSUE_KEY'] = row['CHILD_ISSUE_KEY']
-    df_worklog_row.loc[:,'CHILD_ISSUE_TYPE_NAME'] = row['CHILD_ISSUE_TYPE_NAME']
-    df_worklog_row.loc[:,'CHILD_ISSUE_STATUS_NAME'] = row['CHILD_ISSUE_STATUS_NAME']
-    df_worklog_row.loc[:,'CHILD_SPRINT_DATE_VERSION'] = row['CHILD_SPRINT_DATE_VERSION']
-    df_worklog_row.loc[:,'CHILD_SPRINT_END_DATE_VERSION'] = row['CHILD_SPRINT_END_DATE_VERSION']
-    df_worklog_row.loc[:,'SUB_ISSUE_KEY'] = row['SUB_ISSUE_KEY']
-    df_worklog_row.loc[:,'SUB_ISSUE_TYPE_NAME'] = row['SUB_ISSUE_TYPE_NAME']
-    df_worklog_row.loc[:,'SUB_ISSUE_STATUS_NAME'] = row['SUB_ISSUE_STATUS_NAME']
-    df_worklog_row.loc[:,'SUB_STATUS_CATEGORY_CHANGE_DATE'] = row['SUB_STATUS_CATEGORY_CHANGE_DATE']
-    
-    df_worklog_row.loc[:,'TOTAL_STORYPOINTS'] = row['TOTAL_STORYPOINTS']
-    df_worklog_sub_idea = df_worklog_sub_idea.append(df_worklog_row)
-
-df_worklog_enh_3 = df_worklog_enh_3.append(df_worklog_sub_idea)
+#df_worklog_sub_idea = pd.DataFrame()
+#df_worklog_enh_3 = df_worklog_enh_2[~(df_worklog_enh_2['ISSUE_KEY_LOGGED'].isin(df_IDEAS_worklogs_sub['SUB_ISSUE_KEY']))]
+#for index,row in df_IDEAS_worklogs_sub.iterrows():
+#    df_worklog_row = df_worklog_enh_2[(df_worklog_enh_2['ISSUE_KEY_LOGGED']==row['SUB_ISSUE_KEY'])]
+#    df_worklog_row.loc[:,'ISSUE_KEY']= row['ISSUE_KEY']
+#    df_worklog_row.loc[:,'LINKED_1_ISSUE_KEY']= row['LINKED_1_ISSUE_KEY']
+#    df_worklog_row.loc[:,'LINKED_1_ISSUE_TYPE_NAME']= row['LINKED_1_ISSUE_TYPE_NAME']
+#    df_worklog_row.loc[:,'LINKED_1_ISSUE_STATUS_NAME']= row['LINKED_1_ISSUE_STATUS_NAME'] 
+#    df_worklog_row.loc[:,'CHILD_ISSUE_KEY'] = row['CHILD_ISSUE_KEY']
+#    df_worklog_row.loc[:,'CHILD_ISSUE_TYPE_NAME'] = row['CHILD_ISSUE_TYPE_NAME']
+#    df_worklog_row.loc[:,'CHILD_ISSUE_STATUS_NAME'] = row['CHILD_ISSUE_STATUS_NAME']
+#    df_worklog_row.loc[:,'CHILD_SPRINT_DATE_VERSION'] = row['CHILD_SPRINT_DATE_VERSION']
+#    df_worklog_row.loc[:,'CHILD_SPRINT_END_DATE_VERSION'] = row['CHILD_SPRINT_END_DATE_VERSION']
+#    df_worklog_row.loc[:,'CHILD_SPRINT_NAME'] = row['CHILD_SPRINT_NAME']
+#    df_worklog_row.loc[:,'SUB_ISSUE_KEY'] = row['SUB_ISSUE_KEY']
+#    df_worklog_row.loc[:,'SUB_ISSUE_TYPE_NAME'] = row['SUB_ISSUE_TYPE_NAME']
+#    df_worklog_row.loc[:,'SUB_ISSUE_STATUS_NAME'] = row['SUB_ISSUE_STATUS_NAME']
+#    df_worklog_row.loc[:,'SUB_STATUS_CATEGORY_CHANGE_DATE'] = row['SUB_STATUS_CATEGORY_CHANGE_DATE']
+#    df_worklog_row.loc[:,'SUB_SPRINT_NAME'] = row['SUB_SPRINT_NAME']
+#    
+#    df_worklog_row.loc[:,'TOTAL_STORYPOINTS'] = row['TOTAL_STORYPOINTS']
+#    df_worklog_sub_idea = df_worklog_sub_idea.append(df_worklog_row)
+#
+#df_worklog_enh_3 = df_worklog_enh_3.append(df_worklog_sub_idea)
 
 ## Worklog enrich with IDEAS SUB ISSUES 
 
@@ -1489,6 +1148,7 @@ for index,row in df_IDEAS_worklogs_child.iterrows():
     df_worklog_row.loc[:,'CHILD_ISSUE_STATUS_NAME'] = row['CHILD_ISSUE_STATUS_NAME']
     df_worklog_row.loc[:,'CHILD_SPRINT_DATE_VERSION'] = row['CHILD_SPRINT_DATE_VERSION']
     df_worklog_row.loc[:,'CHILD_SPRINT_END_DATE_VERSION'] = row['CHILD_SPRINT_END_DATE_VERSION']
+    df_worklog_row.loc[:,'CHILD_SPRINT_NAME'] = row['CHILD_SPRINT_NAME']
     #df_worklog_row.loc[:,'SUB_ISSUE_KEY'] = row['SUB_ISSUE_KEY']
     #df_worklog_row.loc[:,'SUB_ISSUE_TYPE_NAME'] = row['SUB_ISSUE_TYPE_NAME']
     #df_worklog_row.loc[:,'SUB_ISSUE_STATUS_NAME'] = row['SUB_ISSUE_STATUS_NAME']
@@ -1498,11 +1158,52 @@ for index,row in df_IDEAS_worklogs_child.iterrows():
 
 df_worklog_enh_4 = df_worklog_enh_4.append(df_worklog_child_idea)
 
-# COMMAND ----------
+#Enrichment with Resource and area
+url_1 = 'https://docs.google.com/spreadsheets/d/1P7E-y7eA9-pEIevrBUDztreDWjlI4D4QyyO6eo8AKDk/edit#gid=0'
+url = url_1.replace('/edit#gid=', '/export?format=csv&gid=')
+df_resource_areas = pd.read_csv(url, dtype=str)
 
-#df_worklog_enh_4.tail()
+df_worklog_enh_4 = pd.merge(df_worklog_enh_4,df_resource_areas, left_on = 'UPDATE_NAME', right_on = 'NAME',how = 'left')
 
-# COMMAND ----------
+df_worklog_enh_4.rename(columns={'NAME_ID':'UPDATE_NAME_ID','AREA_ID':'UPDATE_NAME_AREA_ID',
+                                 'AREA':'UPDATE_NAME_AREA','TRACKING_PHASE':'UPDATE_NAME_TRACK_PHASE',
+                                'DEPARTMENT':'UPDATE_NAME_DEPARTMENT'}, inplace=True)
+df_worklog_enh_4.drop('NAME', axis=1, inplace=True)
+df_worklog_enh_4.fillna({'UPDATE_NAME':'UNK'
+                         ,'UPDATE_NAME_ID':'UNK'
+                         ,'UPDATE_NAME_AREA':'UNK'
+                         ,'UPDATE_NAME_AREA_ID':'UNK'
+                         ,'SUB_SPRINT_NAME':'UNK'}
+                        ,inplace=True)
+df_worklog_enh_4.loc[(df_worklog_enh_4['ISSUE_KEY'].isnull())&
+                     (df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Bug','Sub-bug'])),'WORKLOG_TYPE'] = 'Fixing'
+df_worklog_enh_4.loc[(df_worklog_enh_4['ISSUE_KEY'].isnull())&
+                     (~(df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Bug','Sub-bug']))),'WORKLOG_TYPE'] = 'Other'
+df_worklog_enh_4.loc[(df_worklog_enh_4['ISSUE_KEY'].notnull()),'WORKLOG_TYPE'] = 'Developing'
+
+### Allocate worklog in a Sprint from START_DATE of Worklog
+df_Sprints_valid = df_Sprints[df_Sprints['SPRINT_NAME'].str.startswith('v')].sort_values('START_DATE')
+for i in range(0,df_Sprints_valid['SPRINT_ID'].count()):
+    START_DATE = df_Sprints_valid.iloc[i-1,6]
+    END_DATE = df_Sprints_valid.iloc[i,6]
+    #if i < 10:
+    #    i_m = "0"+str(i)
+    #if i >=10:
+    #    i_m = str(i)
+    #VERSION = i_m+" "+df_versions.iloc[i,1]
+    VERSION = df_Sprints_valid.iloc[i,1]
+    #if VERSION == '00 v8.4 Chihuahua':
+    #    START_DATE='2021-09-27 00:00:00+00:00'
+   
+    df_worklog_enh_4.loc[(df_worklog_enh_4['START_DATE']>=START_DATE)
+               &(df_worklog_enh_4['START_DATE']<END_DATE),'SPRINT_ASSIGNED']= VERSION
+    
+    ##df_PR_f.loc[(df_PR_f['STATUS_DATE_VERSION'].isnull())&(df_PR_f['CHILD_STATUS_CATEGORY_CHANGE_DATE']>START_DATE)&(df_PR_f['CHILD_STATUS_CATEGORY_CHANGE_DATE']>END_DATE),'STATUS_DATE_VERSION']= VERSION
+    print(START_DATE,END_DATE,VERSION)
+
+
+
+#### Upload Worklog aggregation to BigQuery
 print('worklog write in saas-analytics-io.processed.jira_processed_IDEAS_worklog')
 try:
   table = "saas-analytics-io.processed.jira_processed_IDEAS_worklog"
@@ -1511,143 +1212,5 @@ try:
 except Exception as e:
   print('Error:',e)
 
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-#df_worklog_enh[(df_worklog_enh['ISSUE_KEY_LOGGED']=='RPLAT-26730')]
-#df_worklog_enh_2[(df_worklog_enh_2['ISSUE_KEY_LOGGED']=='RPLAT-26730')]
-#df_worklog_enh_2[(df_worklog_enh_2['LINKED_1_ISSUE_KEY'].isnull())]
-#df_worklog_enh_2[(df_worklog_enh_2['LINKED_1_ISSUE_KEY']=='RPLAT-38562')]
-
-# COMMAND ----------
-
-#table = "saas-analytics-io.processed.jira_processed_PR_worklog"
-#df_worklog_enh.to_gbq(table, if_exists='replace')
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-#df_YTEM_1.tail(8).T
-
-# COMMAND ----------
-
-#df_IDEAS_worklogs = df_YTEM_1[['ISSUE_KEY'
-#                          ,'LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_TYPE_NAME','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_VERSION_NAME'
-#                          ,'CHILD_ISSUE_KEY','CHILD_ISSUE_TYPE_NAME','CHILD_ISSUE_STATUS_NAME','CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION'
-#                          ,'SUB_ISSUE_KEY','SUB_ISSUE_TYPE_NAME','SUB_ISSUE_STATUS_NAME','SUB_STATUS_CATEGORY_CHANGE_DATE','SUB_PROGRESS'
-#                          ,'TOTAL_STORYPOINTS']].drop_duplicates()
-#
-#df_IDEAS_worklogs_child = df_YTEM_1[(df_YTEM_1['CHILD_ISSUE_KEY'].notnull())&(df_YTEM_1['SUB_ISSUE_KEY'].isnull())][['ISSUE_KEY'
-#                          ,'LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_TYPE_NAME','LINKED_1_ISSUE_STATUS_NAME'
-#                          ,'CHILD_ISSUE_KEY','CHILD_ISSUE_TYPE_NAME','CHILD_ISSUE_STATUS_NAME','CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION'
-#                          #,'SUB_ISSUE_KEY','SUB_ISSUE_TYPE_NAME','SUB_ISSUE_STATUS_NAME','SUB_STATUS_CATEGORY_CHANGE_DATE'
-#                          ,'TOTAL_STORYPOINTS','SUB_PROGRESS']].drop_duplicates()
-
-# COMMAND ----------
-
-#df_worklog_enh_ideas = pd.merge(df_worklog_U,df_IDEAS_worklogs, left_on = 'ISSUE_KEY_LOGGED', right_on = 'SUB_ISSUE_KEY',how = 'left')
-
-# COMMAND ----------
-
-#df_worklog_ideas_child = pd.DataFrame()
-#df_worklog_enh_ideas_2 = df_worklog_enh_ideas[~(df_worklog_enh_ideas['ISSUE_KEY_LOGGED'].isin(df_IDEAS_worklogs_child['CHILD_ISSUE_KEY']))]
-#for index,row in df_IDEAS_worklogs_child.iterrows():
-#    df_worklog_row = df_worklog_enh_ideas[(df_worklog_enh_ideas['ISSUE_KEY_LOGGED']==row['CHILD_ISSUE_KEY'])]
-#    df_worklog_row.loc[:,'ISSUE_KEY']= row['ISSUE_KEY']
-#    df_worklog_row.loc[:,'LINKED_1_ISSUE_KEY']= row['LINKED_1_ISSUE_KEY']
-#    df_worklog_row.loc[:,'LINKED_1_ISSUE_TYPE_NAME']= row['LINKED_1_ISSUE_TYPE_NAME']
-#    df_worklog_row.loc[:,'LINKED_1_ISSUE_STATUS_NAME']= row['LINKED_1_ISSUE_STATUS_NAME'] 
-#    df_worklog_row.loc[:,'CHILD_ISSUE_KEY'] = row['LINKED_1_ISSUE_KEY']
-#    df_worklog_row.loc[:,'CHILD_ISSUE_TYPE_NAME'] = row['CHILD_ISSUE_TYPE_NAME']
-#    df_worklog_row.loc[:,'CHILD_ISSUE_STATUS_NAME'] = row['CHILD_ISSUE_STATUS_NAME']
-#    df_worklog_row.loc[:,'CHILD_SPRINT_DATE_VERSION'] = row['CHILD_SPRINT_DATE_VERSION']
-#    df_worklog_row.loc[:,'CHILD_SPRINT_END_DATE_VERSION'] = row['CHILD_SPRINT_END_DATE_VERSION']
-#    df_worklog_row.loc[:,'TOTAL_STORYPOINTS'] = row['TOTAL_STORYPOINTS']
-#    df_worklog_ideas_child = df_worklog_ideas_child.append(df_worklog_row)
-#
-#df_worklog_enh_ideas_2 = df_worklog_enh_ideas_2.append(df_worklog_ideas_child)
-
-# COMMAND ----------
-
-#df_worklog_enh_ideas[df_worklog_enh_ideas['ISSUE_KEY_LOGGED']=='RPLAT-38211']
-#df_YTEM_1[df_YTEM_1['CHILD_ISSUE_KEY']=='RPLAT-38211']
-
-# COMMAND ----------
-
-#df_YTEM_1[df_YTEM_1['CHILD_ISSUE_KEY']=='RPLAT-38070']
-
-# COMMAND ----------
-
-#df_worklog_ideas_enh_2[df_worklog_ideas_enh_2['ISSUE_KEY_LOGGED']=='RPLAT-38211']
-
-# COMMAND ----------
-
-#df_worklog_ideas_enh_2.tail()
-
-# COMMAND ----------
-
-#df_worklog_U_2 = df_worklog_ideas_enh_2[df_worklog_ideas_enh_2['ISSUE_KEY'].isnull()][['SUB_ISSUE_KEY','ISSUE_TYPE_NAME','AUTHOR_NAME','UPDATE_NAME','START_DATE','LOGGED_TIME','CREATED','UPDATED']]
-
-# COMMAND ----------
-
-#df_worklog_enh_ideas_pr = pd.merge(df_worklog_U_2,df_PR_worklogs, on = 'SUB_ISSUE_KEY',how = 'left')
-
-# COMMAND ----------
-
-#df_worklog_enh_only_ideas = df_worklog_enh_ideas[df_worklog_enh_ideas['ISSUE_KEY'].notnull()]
-
-# COMMAND ----------
-
-#df_worklog_enh_ideas_pr = df_worklog_enh_only_ideas.append(df_worklog_enh_ideas_pr)
-
-# COMMAND ----------
-
-#df_worklog_enh_ideas_pr[df_worklog_enh_ideas_pr['SUB_ISSUE_KEY']=='RPLAT-24808']
-
-# COMMAND ----------
-
-#table = "saas-analytics-io.processed.jira_processed_IDEAS_worklog"
-#df_worklog_enh_ideas.to_gbq(table, if_exists='replace')
-
-# COMMAND ----------
-
-#table = "saas-analytics-io.processed.jira_processed_IDEAS_worklog"
-#df_worklog_enh_ideas_pr.to_gbq(table, if_exists='replace')
-
-# COMMAND ----------
-
-#df_worklog_enh[df_worklog_enh['SUB_ISSUE_KEY']=='RPLAT-26453']
-
-# COMMAND ----------
-
-#df_PR_worklogs[df_PR_worklogs['SUB_ISSUE_KEY']=='RPLAT-26453']
-
-# COMMAND ----------
-
-#df_worklog_enh_ideas_pr[df_worklog_enh_ideas_pr['SUB_ISSUE_KEY']=='RPLAT-26453'].head()
-
-# COMMAND ----------
-
-#df_worklog_1[df_worklog_1['ISSUE_KEY']=='RPLAT-26453']
-
-# COMMAND ----------
-
-#df_YTEM_1[df_YTEM_1['SUB_ISSUE_KEY']=='RPLAT-26453'].drop_duplicates()
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
 
 
