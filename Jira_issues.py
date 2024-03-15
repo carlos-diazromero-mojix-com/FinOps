@@ -44,7 +44,7 @@ sourceN = 0
 table_name ='Worklogs'
 query = """
  SELECT *
- FROM `saas-analytics-io.jira_cdrt_test.%s`
+ FROM `saas-analytics-io.jira.%s`
  WHERE date(UPDATED) between '2022-01-01' and '%s'
        """%(table_name,str_day)
 
@@ -79,7 +79,7 @@ except Exception as e:
 table_name ='Issues'
 query = """
  SELECT *
- FROM `saas-analytics-io.jira_cdrt_test.%s` 
+ FROM `saas-analytics-io.jira.%s` 
  WHERE date(CREATED) between '2020-01-01' and '%s' """%(table_name,str_day)
 
 query_job = client.query(
@@ -114,7 +114,7 @@ table_name ='IssueSprints'
 
 query = """
  SELECT *
- FROM `saas-analytics-io.jira_cdrt_test.%s` 
+ FROM `saas-analytics-io.jira.%s` 
 """%(table_name)
 query_job = client.query(
   query,
@@ -148,7 +148,7 @@ table_name ='IssueLinks'
 
 query = """
  SELECT *
- FROM `saas-analytics-io.jira_cdrt_test.%s` 
+ FROM `saas-analytics-io.jira.%s` 
 """%(table_name)
 query_job = client.query(
   query,
@@ -182,7 +182,7 @@ table_name ='IssueFixVersions'
 
 query = """
  SELECT *
- FROM `saas-analytics-io.jira_cdrt_test.%s` 
+ FROM `saas-analytics-io.jira.%s` 
 """%(table_name)
 query_job = client.query(
   query,
@@ -216,7 +216,7 @@ table_name ='Versions'
 
 query = """
  SELECT *
- FROM `saas-analytics-io.jira_cdrt_test.%s` 
+ FROM `saas-analytics-io.jira.%s` 
  WHERE VERSION_NAME like 'v%%' """%(table_name)
 
 query_job = client.query(
@@ -250,7 +250,7 @@ table_name ='Business_Unit_12031'
 
 query = """
  SELECT *
- FROM `saas-analytics-io.jira_cdrt_test.%s` 
+ FROM `saas-analytics-io.jira.%s` 
 """%(table_name)
 query_job = client.query(
   query,
@@ -284,7 +284,7 @@ table_name ='Customers_12132'
 
 query = """
  SELECT *
- FROM `saas-analytics-io.jira_cdrt_test.%s` 
+ FROM `saas-analytics-io.jira.%s` 
 """%(table_name)
 query_job = client.query(
   query,
@@ -318,7 +318,7 @@ table_name ='OKR_Category_12032'
 
 query = """
  SELECT *
- FROM `saas-analytics-io.jira_cdrt_test.%s` 
+ FROM `saas-analytics-io.jira.%s` 
 """%(table_name)
 query_job = client.query(
   query,
@@ -352,7 +352,7 @@ table_name ='Sprints'
 
 query = """
  SELECT *
- FROM `saas-analytics-io.jira_cdrt_test.%s` 
+ FROM `saas-analytics-io.jira.%s` 
 """%(table_name)
 query_job = client.query(
   query,
@@ -386,7 +386,7 @@ table_name ='Theme_12033'
 
 query = """
  SELECT *
- FROM `saas-analytics-io.jira_cdrt_test.%s` 
+ FROM `saas-analytics-io.jira.%s` 
 """%(table_name)
 query_job = client.query(
   query,
@@ -420,7 +420,7 @@ table_name ='Feature_Set_12139'
 
 query = """
  SELECT *
- FROM `saas-analytics-io.jira_cdrt_test.%s` 
+ FROM `saas-analytics-io.jira.%s` 
 """%(table_name)
 query_job = client.query(
   query,
@@ -454,7 +454,7 @@ table_name ='Key_Customers_11800'
 
 query = """
  SELECT *
- FROM `saas-analytics-io.jira_cdrt_test.%s` 
+ FROM `saas-analytics-io.jira.%s` 
 """%(table_name)
 query_job = client.query(
   query,
