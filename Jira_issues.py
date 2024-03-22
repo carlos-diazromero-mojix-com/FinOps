@@ -1224,7 +1224,8 @@ for i in range(0,df_Sprints_valid['SPRINT_ID'].count()):
     
     ##df_PR_f.loc[(df_PR_f['STATUS_DATE_VERSION'].isnull())&(df_PR_f['CHILD_STATUS_CATEGORY_CHANGE_DATE']>START_DATE)&(df_PR_f['CHILD_STATUS_CATEGORY_CHANGE_DATE']>END_DATE),'STATUS_DATE_VERSION']= VERSION
     print(START_DATE,END_DATE,VERSION)
-
+df_worklog_enh_4['SPRINT_ASSIGNED_START_DATE'] = pd.to_datetime(df_worklog_enh_4['SPRINT_ASSIGNED_START_DATE'])
+df_worklog_enh_4['SPRINT_ASSIGNED_END_DATE'] = pd.to_datetime(df_worklog_enh_4['SPRINT_ASSIGNED_END_DATE'])
 
 
 #### Upload Worklog aggregation to BigQuery
