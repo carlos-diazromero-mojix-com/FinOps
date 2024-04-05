@@ -659,7 +659,13 @@ df_GCP_all_Agg = df_GCP_all_Agg.join(df_test.select(col('id'),
                                                         col('bu'),
                                                         col('costType'),
                                                         col('category'),
-                                                        col('subCategory')),df_GCP_all_Agg.id_project == df_test.id,"Left")
+                                                        col('subCategory'),
+                                                        col('EntityFinance'),
+                                                        col('CategoryFinance'),
+                                                        col('tenantFinance'),
+                                                        col('ResourceGr'),
+                                                        col('unitFinance'),
+                                                      col('Class')),df_GCP_all_Agg.id_project == df_test.id,"Left")
 
 df_GCP_all_Agg = df_GCP_all_Agg.withColumn('usage_start_time_LA', from_utc_timestamp(col("usage_start_time"),"America/Los_Angeles"))
 
@@ -668,7 +674,8 @@ df_GCP_all_Agg = df_GCP_all_Agg.withColumn('usage_start_time_LA', from_utc_times
 
 
 df_GCP_all_Agg = df_GCP_all_Agg[['usage_start_time','id_project','description_service','description_sku','unit','Total_cost','Total_amount','total_after_discounts','Total_amount_credits'
-                                 ,'total_processing_cost','Total_storage_cost','id','provider','tier','bu','costType','category','subCategory','usage_start_time_LA','total_promotion_credits']]
+                                 ,'total_processing_cost','Total_storage_cost','id','provider','tier','bu','costType','category','subCategory','usage_start_time_LA','total_promotion_credits'
+                                 ,'EntityFinance','CategoryFinance','tenantFinance','ResourceGr','unitFinance','Class']]
 
 
 # In[84]:
@@ -718,7 +725,13 @@ df_GCP_all_Agg.to_gbq(table, table_schema= [
       {"name":"category" , "type" : "STRING"} ,
       {"name":"subCategory" , "type" : "STRING"},
       {"name":"usage_start_time_LA", "type" : "DATETIME"},
-      {"name":"total_promotion_credits" , "type" : "FLOAT"}
+      {"name":"total_promotion_credits" , "type" : "FLOAT"},
+      {"name":"EntityFinance" , "type" : "STRING"},
+      {"name":"CategoryFinance" , "type" : "STRING"},
+      {"name":"tenantFinance" , "type" : "STRING"},
+      {"name":"ResourceGr" , "type" : "STRING"},
+      {"name":"unitFinance" , "type" : "STRING"},
+      {"name":"Class" , "type" : "STRING"}
 ],  if_exists='append')
 
 
