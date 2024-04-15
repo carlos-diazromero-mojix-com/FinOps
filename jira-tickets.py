@@ -178,6 +178,7 @@ df_timeinstatus_s = df_timeinstatus[df_timeinstatus['ISSUE_KEY'].str.startswith(
 df_timeinstatus_s.loc[:,'DURATION_BUSINESS_DAYS_HOURS'] = df_timeinstatus_s['DURATION_IN_BUSINESS_DAYS_BH'].astype(int)/60/60
 df_timeinstatus_s_pivot = pd.pivot_table(df_timeinstatus_s, values=['DURATION_BUSINESS_DAYS_HOURS'],index='ISSUE_KEY',columns='ISSUE_STATUS_NAME', aggfunc='sum')
 df_timeinstatus_s_pivot = df_timeinstatus_s_pivot['DURATION_BUSINESS_DAYS_HOURS'].reset_index(drop = False)
+df_timeinstatus_s_pivot.columns = df_timeinstatus_s_pivot.columns.str.replace(' ', '_')
 
 
 
