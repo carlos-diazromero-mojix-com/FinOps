@@ -448,7 +448,6 @@ except Exception as e:
     df_logtable.loc[sourceN,'tableColumns'] = 0
     df_logtable.loc[sourceN,'status'] = e
 
-# COMMAND ----------
 
 table_name ='Key_Customers_11800'
 
@@ -482,6 +481,38 @@ except Exception as e:
     df_logtable.loc[sourceN,'tableColumns'] = 0
     df_logtable.loc[sourceN,'status'] = e
 
+
+table_name ='TimeInStatus'
+
+query = """
+ SELECT *
+ FROM `saas-analytics-io.jira.%s` 
+"""%(table_name)
+query_job = client.query(
+  query,
+    # Location must match that of the dataset(s) referenced in the query.
+  location = "US",
+)  # API request - starts the query
+#print(query)
+
+try:
+    df_timeinstatus = query_job.to_dataframe()
+    #print(df_worklog.info())
+    #print(df_worklog.shape)
+
+    df_logtable.loc[sourceN,'date'] = str_day
+    df_logtable.loc[sourceN,'tableName'] = table_name
+    df_logtable.loc[sourceN,'tableRows'] = len(df_timeinstatus.index)
+    df_logtable.loc[sourceN,'tableColumns'] = len(df_timeinstatus.columns)
+    df_logtable.loc[sourceN,'status'] = 'ok'
+    #sourceN = sourceN+1
+except Exception as e:
+    df_key_customer_idea = query_job.to_dataframe()
+    df_logtable.loc[sourceN,'date'] = str_day
+    df_logtable.loc[sourceN,'tableName'] = table_name
+    df_logtable.loc[sourceN,'tableRows'] = 0
+    df_logtable.loc[sourceN,'tableColumns'] = 0
+    df_logtable.loc[sourceN,'status'] = e
 
 df_logtable
 
@@ -608,6 +639,22 @@ df_key_customer_idea_1['IDEA_KEY_CUSTOMERS'] = df_key_customer_idea_1['IDEA_KEY_
 df_key_customer_idea_1.loc[df_key_customer_idea_1['IDEA_KEY_CUSTOMERS'].str.startswith(":"),'IDEA_KEY_CUSTOMERS']=df_key_customer_idea_1['IDEA_KEY_CUSTOMERS'].str[1:]
 df_key_customer_idea_1.loc[df_key_customer_idea_1['IDEA_KEY_CUSTOMERS'].str.endswith(":"),'IDEA_KEY_CUSTOMERS']=df_key_customer_idea_1['IDEA_KEY_CUSTOMERS'].str[:-1]
 
+### time In Status for Ideas
+df_timeinstatus_IDEAS = df_timeinstatus[df_timeinstatus['ISSUE_KEY'].str.startswith('IDEA')]
+df_timeinstatus_IDEAS = df_timeinstatus_IDEAS[['ISSUE_KEY','ISSUE_STATUS_ID','ISSUE_STATUS_NAME',
+                                               'DURATION_IN_BUSINESS_DAYS_BH','FIRST_TRANSITION_TO_STATUS',
+                                               'LAST_TRANSITION_TO_STATUS']]
+
+df_timeinstatus_IDEAS_delivered = df_timeinstatus_IDEAS[df_timeinstatus_IDEAS['ISSUE_STATUS_NAME'].str.contains('Delivered')]
+df_timeinstatus_IDEAS_delivered = df_timeinstatus_IDEAS_delivered[['ISSUE_KEY','LAST_TRANSITION_TO_STATUS']]
+df_timeinstatus_IDEAS_delivered.rename(columns={'LAST_TRANSITION_TO_STATUS':'DELIVERED_DATE'}, inplace=True)
+df_timeinstatus_IDEAS_delivered = df_timeinstatus_IDEAS_delivered.drop_duplicates('ISSUE_KEY', keep ='first')
+
+
+
+
+
+
 ### Join datasources and Consolidate one table complete
 df_full = pd.merge(df_issues, df_issueSprints, on =['ISSUE_ID','ISSUE_KEY'],how = 'left')
 df_full = pd.merge(df_full, df_IssueFixVersions_1, on =['ISSUE_KEY'],how = 'left')
@@ -616,20 +663,22 @@ df_full = pd.merge(df_full, df_customers_1, on =['ISSUE_KEY'],how = 'left')
 df_full = pd.merge(df_full, df_category_1, on =['ISSUE_KEY'],how = 'left')
 df_full = pd.merge(df_full, df_theme_1, on =['ISSUE_KEY'],how = 'left')
 df_full = pd.merge(df_full, df_Sprints, on =['SPRINT_ID','SPRINT_NAME'],how = 'left')
+df_full = pd.merge(df_full, df_timeinstatus_IDEAS_delivered, on ='ISSUE_KEY',how = 'left')
 
 #### Create Dataframe for IDEAS/PR
 df_issues_s = df_full[['CREATED','ISSUE_ID','ISSUE_KEY','SUMMARY','ISSUE_TYPE_NAME','ISSUE_STATUS_NAME',
                          'SPRINT_ID','SPRINT_NAME','STATE','START_DATE','END_DATE','COMPLETE_DATE',
                          'VERSION_NAME',
-                         'PRIORITY','CURRENT_ASSIGNEE_NAME','REPORTER_NAME','RESOLUTION_DATE','STATUS_CATEGORY_CHANGE_DATE',
+                         'PRIORITY','RESOLUTION','CURRENT_ASSIGNEE_NAME','REPORTER_NAME','RESOLUTION_DATE','STATUS_CATEGORY_CHANGE_DATE',
                          #'TIME_SPENT','TIME_SPENT_WITH_SUBTASKS',
                        'PARENT_ISSUE_KEY','CATEGORY','BU','CUSTOMERS',
-                       'THEME',
-                       'Story_Points_10400','Progress___11891'
+                       'THEME','DELIVERED_DATE',
+                       'Story_Points_10400','Progress___11891','Roadmap_12166','Estimate_Sprints_12213','Story_Points__Estimate__12242'
                        #,'__Effort_12125','Layout_12166'
                       ]]
 df_issues_s = df_issues_s.rename(columns={"Story_Points_10400":"STORYPOINTS",
-                              "Progress___11891":"PROGRESS"
+                              "Progress___11891":"PROGRESS", 'Roadmap_12166':'ROADMAP'
+                              , 'Estimate_Sprints_12213':'ESTIMATE_SPRINTS', 'Story_Points__Estimate__12242':'ESTIMATE_STORYPOINTS'
                              })
 
 #### Create Dataframe for linked issues (Epics)
@@ -670,20 +719,20 @@ df_issues_2 = pd.merge(df_issues_1, df_issues_s_2,on=['LINKED_1_ISSUE_KEY','LINK
 try:
   print('PR transformation')
   df_PR = df_issues_2[df_issues_2['ISSUE_TYPE_NAME'].str.startswith('Product Request')][['CREATED','ISSUE_KEY','SUMMARY',
-                                                                        'ISSUE_TYPE_NAME','ISSUE_STATUS_NAME',
-                                                                          'CURRENT_ASSIGNEE_NAME',
-          'SPRINT_ID','SPRINT_NAME','STATE','START_DATE','END_DATE','COMPLETE_DATE',
-          #'VERSION_ID',
-          'VERSION_NAME','PRIORITY',
-          'REPORTER_NAME','RESOLUTION_DATE','STATUS_CATEGORY_CHANGE_DATE',
-          #'TIME_SPENT','TIME_SPENT_WITH_SUBTASKS',
-          'CATEGORY','BU','CUSTOMERS','STORYPOINTS','PROGRESS' ,'TYPE_1','DIRECTION_1',                                                              
-          'LINKED_1_ISSUE_KEY','LINKED_1_SUMMARY','LINKED_1_ISSUE_TYPE_NAME','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_ASSIGNEE_NAME',
-          'LINKED_1_SPRINT_NAME','LINKED_1_SPRINT_START_DATE','LINKED_1_SPRINT_END_DATE','LINKED_1_VERSION_NAME',
-          'LINKED_1_CATEGORY','LINKED_1_BU','LINKED_1_CUSTOMERS',
-          'LINKED_1_THEME',
-          'LINKED_1_STORYPOINTS','LINKED_1_PROGRESS'
-          ]]
+                                                                       'ISSUE_TYPE_NAME','ISSUE_STATUS_NAME',
+                                                                        'CURRENT_ASSIGNEE_NAME',
+        'SPRINT_ID','SPRINT_NAME','STATE','START_DATE','END_DATE','COMPLETE_DATE',
+        #'VERSION_ID',
+        'VERSION_NAME','PRIORITY',
+        'REPORTER_NAME','RESOLUTION_DATE','STATUS_CATEGORY_CHANGE_DATE',
+        #'TIME_SPENT','TIME_SPENT_WITH_SUBTASKS',
+         'CATEGORY','BU','CUSTOMERS','STORYPOINTS','PROGRESS','ROADMAP','TYPE_1','DIRECTION_1',                                                              
+        'LINKED_1_ISSUE_KEY','LINKED_1_SUMMARY','LINKED_1_ISSUE_TYPE_NAME','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_ASSIGNEE_NAME',
+        'LINKED_1_SPRINT_NAME','LINKED_1_SPRINT_START_DATE','LINKED_1_SPRINT_END_DATE','LINKED_1_VERSION_NAME',
+        'LINKED_1_CATEGORY','LINKED_1_BU','LINKED_1_CUSTOMERS',
+        'LINKED_1_THEME',
+        'LINKED_1_STORYPOINTS','LINKED_1_PROGRESS'
+         ]]
   df_PR = df_PR[(df_PR['TYPE_1']=='Depends')&(df_PR['DIRECTION_1']=='Outward')]
   df_issues_PR_1 = df_issues_2[(df_issues_2['ISSUE_TYPE_NAME']!='Product Request')
                               &(df_issues_2['PARENT_ISSUE_KEY'].notnull())][['CREATED','ISSUE_KEY','SUMMARY',
@@ -778,10 +827,11 @@ try:
   # Assign version from CHILD SPRINT START DATE
   df_versions['START_DATE_m'] = df_versions['RELEASE_DATE']+pd.Timedelta(days=1)
   df_versions['START_DATE_2_m'] = df_versions['RELEASE_DATE']+pd.Timedelta(seconds=86399)
+  
 
   for i in range(0,df_versions['VERSION_ID'].count()):
-      START_DATE = df_versions.iloc[i-1,10] 
-      END_DATE = df_versions.iloc[i,11] 
+      START_DATE = df_versions.iloc[i-1,5] 
+      END_DATE = df_versions.iloc[i,6]  
       if i < 10:
           i_m = "0"+str(i)
       if i >=10:
@@ -811,21 +861,27 @@ except Exception as e:
 
 
 ### IDEA Tickets - Data Preparation
-df_IDEA = df_issues_2[(df_issues_2['ISSUE_TYPE_NAME'].str.startswith('Idea'))&(df_issues_2['TYPE_1'].str.startswith('Polaris issue'))][['CREATED','ISSUE_KEY','SUMMARY',
-                                                                       'ISSUE_TYPE_NAME','ISSUE_STATUS_NAME',
-                                                                        'CURRENT_ASSIGNEE_NAME',
-        'SPRINT_ID','SPRINT_NAME','STATE','START_DATE','END_DATE','COMPLETE_DATE',
-        #'VERSION_ID',
-        'VERSION_NAME','PRIORITY',
-        'REPORTER_NAME','RESOLUTION_DATE','STATUS_CATEGORY_CHANGE_DATE',
-        #'TIME_SPENT','TIME_SPENT_WITH_SUBTASKS',
-         'CATEGORY','BU','CUSTOMERS','STORYPOINTS','PROGRESS' ,'TYPE_1','DIRECTION_1',                                                              
-        'LINKED_1_ISSUE_KEY','LINKED_1_SUMMARY','LINKED_1_ISSUE_TYPE_NAME','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_ASSIGNEE_NAME',
-        'LINKED_1_SPRINT_NAME','LINKED_1_SPRINT_START_DATE','LINKED_1_SPRINT_END_DATE','LINKED_1_VERSION_NAME',
-        'LINKED_1_CATEGORY','LINKED_1_BU','LINKED_1_CUSTOMERS',
-        'LINKED_1_THEME',
-        'LINKED_1_STORYPOINTS','LINKED_1_PROGRESS'
-        #,'__Effort_12125','Layout_12166'
+df_IDEA_w_epics = df_issues_2[(df_issues_2['ISSUE_TYPE_NAME'].str.startswith('Idea'))
+                      &(df_issues_2['TYPE_1'].str.startswith('Jira Product Discovery issue link'))]
+        
+df_IDEA_wo_epics = df_issues_2[(df_issues_2['ISSUE_TYPE_NAME'].str.startswith('Idea'))
+                      &(df_issues_2['TYPE_1'].isnull())]
+
+df_IDEA = df_IDEA_w_epics.append(df_IDEA_wo_epics)
+
+df_IDEA = df_IDEA[['CREATED','ISSUE_KEY','SUMMARY','ISSUE_TYPE_NAME','ISSUE_STATUS_NAME','DELIVERED_DATE','CURRENT_ASSIGNEE_NAME',
+                   'SPRINT_ID','SPRINT_NAME','STATE','START_DATE','END_DATE','COMPLETE_DATE',
+                    #'VERSION_ID',
+                    'VERSION_NAME','PRIORITY',
+                    'REPORTER_NAME','RESOLUTION_DATE','STATUS_CATEGORY_CHANGE_DATE',
+                    #'TIME_SPENT','TIME_SPENT_WITH_SUBTASKS',
+                    'CATEGORY','BU','CUSTOMERS','STORYPOINTS','PROGRESS','ROADMAP','ESTIMATE_SPRINTS','ESTIMATE_STORYPOINTS','TYPE_1','DIRECTION_1',                                                              
+                    'LINKED_1_ISSUE_KEY','LINKED_1_SUMMARY','LINKED_1_ISSUE_TYPE_NAME','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_ASSIGNEE_NAME',
+                    'LINKED_1_SPRINT_NAME','LINKED_1_SPRINT_START_DATE','LINKED_1_SPRINT_END_DATE','LINKED_1_VERSION_NAME',
+                    'LINKED_1_CATEGORY','LINKED_1_BU','LINKED_1_CUSTOMERS',
+                    'LINKED_1_THEME',
+                    'LINKED_1_STORYPOINTS','LINKED_1_PROGRESS',                                                                                                                             
+                    #,'__Effort_12125','Layout_12166'
          ]]
 
 #df_IDEA = pd.merge(df_IDEA, df_category_idea_1, on =['ISSUE_KEY'],how = 'left')
@@ -931,8 +987,8 @@ selected_cols = ['SUB_ISSUE_KEY','SUB_SUMMARY','SUB_ISSUE_TYPE_NAME','SUB_ISSUE_
 df_YTEM_1[selected_cols]=df_YTEM_1[selected_cols].fillna('')
 
 for i in range(0,df_versions['VERSION_ID'].count()):
-    START_DATE = df_versions.iloc[i-1,10] 
-    END_DATE = df_versions.iloc[i,11] 
+    START_DATE = df_versions.iloc[i-1,5] 
+    END_DATE = df_versions.iloc[i,5]  
     if i < 10:
         i_m = "0"+str(i)
     if i >=10:
