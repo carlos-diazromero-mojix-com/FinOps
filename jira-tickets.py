@@ -129,8 +129,10 @@ df_issue_ticket = df_issues[df_issues['ISSUE_KEY'].str.startswith('TICKET')]
 df_issue_ticket_s = df_issue_ticket[['ISSUE_ID','ISSUE_KEY','ISSUE_TYPE_NAME','ISSUE_STATUS_NAME','SUMMARY',
                         'PRIORITY','PROJECT_KEY','CURRENT_ASSIGNEE_NAME','CREATOR_NAME','REPORTER_NAME',
                        'ENVIRONMENT','CREATED','RESOLUTION','RESOLUTION_DATE','SECURITY_LEVEL_NAME','STATUS_CATEGORY_CHANGE_DATE',
-                       'Platform_Version_12025','Progress___11891','Severity_Level_11918','Support_Level_11903','Tenant_12026','Tier_11886','Customer_Type_11954']]
+                       'Platform_Version_12025','Progress___11891','Severity_Level_11918','Support_Level_11903','Tenant_12026','Tier_11886','Customer_Type_11954',
+                       '_CHART__Date_of_First_Response_10000']]
 df_issue_ticket_s.loc[df_issue_ticket_s['RESOLUTION_DATE'].notnull(),'HOURS_TO_RESOLVED'] = ((df_issue_ticket_s['RESOLUTION_DATE'] - df_issue_ticket_s['CREATED']).dt.total_seconds())/60/60
+df_issue_ticket_s.loc[:,'HOURS_TO_FIRST_RESPONSE'] = ((df_issue_ticket_s['_CHART__Date_of_First_Response_10000'] - df_issue_ticket_s['CREATED']).dt.total_seconds())/60/60
 
 df_issue_ticket_s.loc[df_issue_ticket_s['SUMMARY'].str.contains('RED'),'TENANT']='RED'
 df_issue_ticket_s.loc[df_issue_ticket_s['SUMMARY'].str.contains('Eclipse'),'TENANT']='ECLIPSE'
