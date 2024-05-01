@@ -616,10 +616,10 @@ df_theme_1.loc[df_theme_1['THEME']=='Product:Single','THEME']='SingleProduct'
 #df_category_idea_1.loc[df_category_idea_1['IDEA_CATEGORY'].str.endswith(":"),'IDEA_CATEGORY']=df_category_idea_1['IDEA_CATEGORY'].str[:-1]
 
 #### FeatureSet for IDEAS (Concat in one field)
-df_feature_set_idea['IDEA_FEATURE_SET']=df_feature_set_idea['Feature_Set'] 
-df_feature_set_idea_1 = df_feature_set_idea.pivot_table(index ='ISSUE_KEY',columns ='Feature_Set',values= 'IDEA_FEATURE_SET', aggfunc=sum, fill_value ='').reset_index()
+df_feature_set_idea['IDEA_FEATURE_SET']=df_feature_set_idea['Feature_Category'] 
+df_feature_set_idea_1 = df_feature_set_idea.pivot_table(index ='ISSUE_KEY',columns ='Feature_Category',values= 'IDEA_FEATURE_SET', aggfunc=sum, fill_value ='').reset_index()
 list1 = []
-for i in range (1,df_feature_set_idea['Feature_Set'].nunique()+1,1):
+for i in range (1,df_feature_set_idea['Feature_Category'].nunique()+1,1):
     list1.append((i))
 df_feature_set_idea_1.loc[:,'IDEA_FEATURE_SET'] = df_feature_set_idea_1.iloc[:,list1].apply(":".join, axis=1)
 df_feature_set_idea_1 = df_feature_set_idea_1[['ISSUE_KEY','IDEA_FEATURE_SET']]
