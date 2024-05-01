@@ -242,7 +242,7 @@ df_results_1 = df_results_1.withColumn('datetime_h_LA', from_utc_timestamp(col("
 
 # In[174]:
 
-
+print ('YT1 df_results_1 schema:')
 df_results_1.printSchema()
 
 
@@ -308,11 +308,11 @@ df_results_1.to_gbq(table, table_schema=[
 # In[181]:
 
 
-#df_events_classif_vt1 = spark.read.format('bigquery').option('project','saas-analytics-io').option('table','processed.vt1_event_classify_finops').option("filter", """date(datetime_h) = '%s' and time(datetime_h)
-#between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
+df_events_classif_vt1 = spark.read.format('bigquery').option('project','saas-analytics-io').option('table','processed.vt1_event_classify_finops').option("filter", """date(datetime_h) = '%s' and time(datetime_h)
+between '%s' and '%s'"""%(str_day,hour_ini_1,hour_fin_1)).load()
 
-df_events_classif_vt1 = spark.read.format('bigquery').option('project','saas-analytics-io')        .option('table','processed.vt1_event_classify_finops').option("filter", """date(datetime_h)
-    between '2023-04-02' and '2023-04-15'""").load()
+#df_events_classif_vt1 = spark.read.format('bigquery').option('project','saas-analytics-io').option('table','processed.vt1_event_classify_finops').option("filter", """date(datetime_h)
+ #   between '2023-04-02' and '2023-04-15'""").load()
 
 
 # In[182]:
@@ -471,7 +471,8 @@ df_results_1 = df_results_1.withColumn('datetime_h_LA', from_utc_timestamp(col("
 
 
 # In[208]:
-
+print ('VT1 df_results_1 schema:')
+df_results_1.printSchema()
 
 df_results_1 = df_results_1[['datetime_h',
  'tenantCode',
