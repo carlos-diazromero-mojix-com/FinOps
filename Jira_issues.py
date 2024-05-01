@@ -416,7 +416,7 @@ except Exception as e:
 
 # COMMAND ----------
 
-table_name ='Feature_Set_12139'
+table_name ='Feature_Category_12139'
 
 query = """
  SELECT *
