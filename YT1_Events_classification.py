@@ -235,6 +235,7 @@ df_full = df_full.withColumnRenamed("rflSiteCode","premise_from_biz")
 #df_sites2 = df_sites2.withColumnRenamed("fixture","zone_1")
 #df_full = df_full.join(df_sites2,(df_full.tenantCode == df_sites2.tenant)&(df_full.zone == df_sites2.zone_1),"left")
 #df_full = df_full.drop('tenant','zone_1')
+df_full = df_full.withColumn("premise_from_fixture", lit(""))
 
 
 # In[72]:
