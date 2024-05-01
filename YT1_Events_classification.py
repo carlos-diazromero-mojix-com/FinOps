@@ -196,7 +196,7 @@ df_full.printSchema()
 df_agg_reflist = df_reflist.groupBy(['serialNumber','tenantCode','value', 'rflSiteCode']).count()
 df_agg_reflist = df_agg_reflist.withColumnRenamed("value","bizLocation_rfl")
 df_agg_reflist = df_agg_reflist.withColumnRenamed("serialNumber","serialNumber_rfl")
-df_agg_reflist = df_agg_reflist[['serialNumber_rfl','bizLocation_rfl']]
+df_agg_reflist = df_agg_reflist[['serialNumber_rfl','bizLocation_rfl','rflSiteCode']]
 #CONTENT JOIN with REFLIST
 df_full = df_full.withColumn('referenceListSerial1',when((df_full.thingType=='CONTENT')&(df_full.transactionId=='unlink'), split(df_full['serialNumber'],"-").getItem(3))
                             .when((df_full.thingType=='CONTENT')&(df_full.transactionId!='unlink'), df_full['referenceListSerial']))
