@@ -740,12 +740,12 @@ df_issues_s = df_full[['CREATED','ISSUE_ID','ISSUE_KEY','SUMMARY','ISSUE_TYPE_NA
                          #'TIME_SPENT','TIME_SPENT_WITH_SUBTASKS',
                        'PARENT_ISSUE_KEY','CATEGORY','BU','CUSTOMERS',
                        'THEME','DELIVERED_DATE',
-                       'Story_Points_10400','Progress___11891','Roadmap_12166','Estimate_Sprints_12213','Story_Points__Estimate__12242',
+                       'Story_Points_10400','Progress___11891','Quarter_12166','Estimate_Sprints_12213','Story_Points__Estimate__12242',
                        'Product_Line', 'Target_Market'
                        #,'__Effort_12125','Layout_12166'
                       ]]
 df_issues_s = df_issues_s.rename(columns={"Story_Points_10400":"STORYPOINTS",
-                              "Progress___11891":"PROGRESS", 'Roadmap_12166':'ROADMAP'
+                              "Progress___11891":"PROGRESS", 'Quarter_12166':'ROADMAP'
                               , 'Estimate_Sprints_12213':'ESTIMATE_SPRINTS', 'Story_Points__Estimate__12242':'ESTIMATE_STORYPOINTS'
                              })
 
