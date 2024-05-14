@@ -944,7 +944,7 @@ df_IDEA = df_IDEA[['CREATED','ISSUE_KEY','SUMMARY','ISSUE_TYPE_NAME','ISSUE_STAT
                     'REPORTER_NAME','RESOLUTION_DATE','STATUS_CATEGORY_CHANGE_DATE',
                     #'TIME_SPENT','TIME_SPENT_WITH_SUBTASKS',
                     'CATEGORY','BU','CUSTOMERS','STORYPOINTS','PROGRESS','ROADMAP','ESTIMATE_SPRINTS','ESTIMATE_STORYPOINTS','TYPE_1','DIRECTION_1',
-                    'Product_Line', 'Target_Market'                                                              
+                    'Product_Line', 'Target_Market',                                                              
                     'LINKED_1_ISSUE_KEY','LINKED_1_SUMMARY','LINKED_1_ISSUE_TYPE_NAME','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_ASSIGNEE_NAME',
                     'LINKED_1_SPRINT_NAME','LINKED_1_SPRINT_START_DATE','LINKED_1_SPRINT_END_DATE','LINKED_1_VERSION_NAME',
                     'LINKED_1_CATEGORY','LINKED_1_BU','LINKED_1_CUSTOMERS',
