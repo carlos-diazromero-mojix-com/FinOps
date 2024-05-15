@@ -579,7 +579,7 @@ except Exception as e:
     df_logtable.loc[sourceN,'tableColumns'] = 0
     df_logtable.loc[sourceN,'status'] = e
 
-df_logtable
+print(df_logtable)
 
 ## Data Preparation
 #### Worklog
@@ -739,14 +739,15 @@ df_issues_s = df_full[['CREATED','ISSUE_ID','ISSUE_KEY','SUMMARY','ISSUE_TYPE_NA
                          'PRIORITY','RESOLUTION','CURRENT_ASSIGNEE_NAME','REPORTER_NAME','RESOLUTION_DATE','STATUS_CATEGORY_CHANGE_DATE',
                          #'TIME_SPENT','TIME_SPENT_WITH_SUBTASKS',
                        'PARENT_ISSUE_KEY','CATEGORY','BU','CUSTOMERS',
-                       'THEME','DELIVERED_DATE',
-                       'Story_Points_10400','Progress___11891','Quarter_12166','Estimate_Sprints_12213','Story_Points__Estimate__12242',
-                       'Product_Line', 'Target_Market'
+                       'THEME','DELIVERED_DATE','Estimate_Sprints_12213',
+                       'Story_Points_10400','Progress___11891','Quarter_12166','Story_Points__Estimate__12398','Story_Points__Executed__12397','Story_Points__Guesstimate__12242',
+                        'Product_Line', 'Target_Market'
                        #,'__Effort_12125','Layout_12166'
                       ]]
 df_issues_s = df_issues_s.rename(columns={"Story_Points_10400":"STORYPOINTS",
                               "Progress___11891":"PROGRESS", 'Quarter_12166':'ROADMAP'
-                              , 'Estimate_Sprints_12213':'ESTIMATE_SPRINTS', 'Story_Points__Estimate__12242':'ESTIMATE_STORYPOINTS'
+                              , 'Estimate_Sprints_12213':'ESTIMATE_SPRINTS', 'Story_Points__Guesstimate__12242':'GUESSTIMATE_STORYPOINTS'
+                              ,'Story_Points__Estimate__12398':'ESTIMATE_STORYPOINTS', 'Story_Points__Executed__12397':'EXECUTED_STORYPOINTS'
                              })
 
 #### Create Dataframe for linked issues (Epics)
@@ -899,7 +900,7 @@ try:
 
   for i in range(0,df_versions['VERSION_ID'].count()):
       START_DATE = df_versions.iloc[i-1,5] 
-      END_DATE = df_versions.iloc[i,6]  
+      END_DATE = df_versions.iloc[i,5]  
       if i < 10:
           i_m = "0"+str(i)
       if i >=10:
@@ -930,7 +931,7 @@ except Exception as e:
 
 ### IDEA Tickets - Data Preparation
 df_IDEA_w_epics = df_issues_2[(df_issues_2['ISSUE_TYPE_NAME'].str.startswith('Idea'))
-                      &(df_issues_2['TYPE_1'].str.startswith('Jira Product Discovery issue link'))]
+                      &(df_issues_2['TYPE_1'].str.startswith('Polaris'))]
         
 df_IDEA_wo_epics = df_issues_2[(df_issues_2['ISSUE_TYPE_NAME'].str.startswith('Idea'))
                       &(df_issues_2['TYPE_1'].isnull())]
@@ -943,13 +944,13 @@ df_IDEA = df_IDEA[['CREATED','ISSUE_KEY','SUMMARY','ISSUE_TYPE_NAME','ISSUE_STAT
                     'VERSION_NAME','PRIORITY',
                     'REPORTER_NAME','RESOLUTION_DATE','STATUS_CATEGORY_CHANGE_DATE',
                     #'TIME_SPENT','TIME_SPENT_WITH_SUBTASKS',
-                    'CATEGORY','BU','CUSTOMERS','STORYPOINTS','PROGRESS','ROADMAP','ESTIMATE_SPRINTS','ESTIMATE_STORYPOINTS','TYPE_1','DIRECTION_1',
-                    'Product_Line', 'Target_Market',                                                              
+                    'CATEGORY','BU','CUSTOMERS','STORYPOINTS','PROGRESS','ROADMAP','ESTIMATE_SPRINTS','ESTIMATE_STORYPOINTS','GUESSTIMATE_STORYPOINTS','EXECUTED_STORYPOINTS','TYPE_1','DIRECTION_1',
+                    'Product_Line', 'Target_Market',   
                     'LINKED_1_ISSUE_KEY','LINKED_1_SUMMARY','LINKED_1_ISSUE_TYPE_NAME','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_ASSIGNEE_NAME',
                     'LINKED_1_SPRINT_NAME','LINKED_1_SPRINT_START_DATE','LINKED_1_SPRINT_END_DATE','LINKED_1_VERSION_NAME',
                     'LINKED_1_CATEGORY','LINKED_1_BU','LINKED_1_CUSTOMERS',
                     'LINKED_1_THEME',
-                    'LINKED_1_STORYPOINTS','LINKED_1_PROGRESS',                                                                                                                            
+                    'LINKED_1_STORYPOINTS','LINKED_1_PROGRESS',                                                                                                                             
                     #,'__Effort_12125','Layout_12166'
          ]]
 
