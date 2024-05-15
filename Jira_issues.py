@@ -1082,7 +1082,7 @@ url_1 = 'https://docs.google.com/spreadsheets/d/1P7E-y7eA9-pEIevrBUDztreDWjlI4D4
 url = url_1.replace('/edit#gid=', '/export?format=csv&gid=')
 df_areas = pd.read_csv(url, dtype=str)
 
-df_YTEM_1= pd.merge(df_YTEM_1,df_areas, how='inner', left_on='SUB_ASSIGNEE_NAME', right_on='NAME')
+df_YTEM_1= pd.merge(df_YTEM_1,df_areas, how='left', left_on='SUB_ASSIGNEE_NAME', right_on='NAME')
 df_YTEM_1.rename(columns={'NAME_ID':'SUB_ASSIGNEE_NAME_ID','AREA_ID':'SUBASSIGNEE_AREA_ID',
                           'AREA':'SUB_ASSIGNEE_AREA','TRACKING_PHASE':'SUB_ASSIGNEE_TRACK_PHASE',
                          'DEPARTMENT':'SUB_ASSIGNEE_DEPARTMENT'}, inplace=True)
