@@ -710,12 +710,31 @@ df_timeinstatus_IDEAS = df_timeinstatus_IDEAS[['ISSUE_KEY','ISSUE_STATUS_ID','IS
                                                'DURATION_IN_BUSINESS_DAYS_BH','FIRST_TRANSITION_TO_STATUS',
                                                'LAST_TRANSITION_TO_STATUS']]
 
+#DELIVERED_DATE
 df_timeinstatus_IDEAS_delivered = df_timeinstatus_IDEAS[df_timeinstatus_IDEAS['ISSUE_STATUS_NAME'].str.contains('Delivered')]
 df_timeinstatus_IDEAS_delivered = df_timeinstatus_IDEAS_delivered[['ISSUE_KEY','LAST_TRANSITION_TO_STATUS']]
 df_timeinstatus_IDEAS_delivered.rename(columns={'LAST_TRANSITION_TO_STATUS':'DELIVERED_DATE'}, inplace=True)
 df_timeinstatus_IDEAS_delivered = df_timeinstatus_IDEAS_delivered.drop_duplicates('ISSUE_KEY', keep ='first')
 
+#BACKLOG_DATE (last transition)
 
+df_timeinstatus_IDEAS_backlog = df_timeinstatus_IDEAS[df_timeinstatus_IDEAS['ISSUE_STATUS_NAME'].str.contains('Backlog')]
+df_timeinstatus_IDEAS_backlog = df_timeinstatus_IDEAS_backlog[['ISSUE_KEY','LAST_TRANSITION_TO_STATUS']]
+df_timeinstatus_IDEAS_backlog.rename(columns={'LAST_TRANSITION_TO_STATUS':'BACKLOG_DATE'}, inplace=True)
+df_timeinstatus_IDEAS_backlog = df_timeinstatus_IDEAS_backlog.drop_duplicates('ISSUE_KEY', keep ='first')
+
+#PRD_DATE (first transition)
+df_timeinstatus_IDEAS_PRD = df_timeinstatus_IDEAS[df_timeinstatus_IDEAS['ISSUE_STATUS_NAME'].str.contains('PRD')]
+df_timeinstatus_IDEAS_PRD = df_timeinstatus_IDEAS_PRD[['ISSUE_KEY','LAST_TRANSITION_TO_STATUS']]
+df_timeinstatus_IDEAS_PRD.rename(columns={'LAST_TRANSITION_TO_STATUS':'PRD_DATE'}, inplace=True)
+df_timeinstatus_IDEAS_PRD = df_timeinstatus_IDEAS_PRD.drop_duplicates('ISSUE_KEY', keep ='first')
+
+#ARCHITECTURE_BUSINESS_HOURS_DURATION (first DURATION_IN_BUSINESS_DAYS_BH)
+df_timeinstatus_IDEAS_Architecture = df_timeinstatus_IDEAS[df_timeinstatus_IDEAS['ISSUE_STATUS_NAME'].str.contains('Architecture')]
+df_timeinstatus_IDEAS_Architecture = df_timeinstatus_IDEAS_Architecture[['ISSUE_KEY','DURATION_IN_BUSINESS_DAYS_BH']]
+df_timeinstatus_IDEAS_Architecture['ARCHITECTURE_BUSINESS_HOURS_DURATION']= df_timeinstatus_IDEAS_Architecture['DURATION_IN_BUSINESS_DAYS_BH']/60/60
+df_timeinstatus_IDEAS_Architecture.drop(columns={'DURATION_IN_BUSINESS_DAYS_BH'}, inplace=True)
+df_timeinstatus_IDEAS_Architecture = df_timeinstatus_IDEAS_Architecture.drop_duplicates('ISSUE_KEY', keep ='first')
 
 
 
@@ -729,8 +748,11 @@ df_full = pd.merge(df_full, df_category_1, on =['ISSUE_KEY'],how = 'left')
 df_full = pd.merge(df_full, df_theme_1, on =['ISSUE_KEY'],how = 'left')
 df_full = pd.merge(df_full, df_Sprints, on =['SPRINT_ID','SPRINT_NAME'],how = 'left')
 df_full = pd.merge(df_full, df_timeinstatus_IDEAS_delivered, on ='ISSUE_KEY',how = 'left')
-df_full = pd.merge(df_full, df_targetMarket, on ='ISSUE_KEY',how = 'left')
-df_full = pd.merge(df_full, df_productLine , on ='ISSUE_KEY',how = 'left')
+df_full = pd.merge(df_full, df_timeinstatus_IDEAS_backlog, on ='ISSUE_KEY',how = 'left')
+df_full = pd.merge(df_full, df_timeinstatus_IDEAS_PRD, on ='ISSUE_KEY',how = 'left')
+df_full = pd.merge(df_full, df_timeinstatus_IDEAS_Architecture, on ='ISSUE_KEY',how = 'left')
+df_full = pd.merge(df_full, df_targetMarket[['ISSUE_KEY','Target_Market']], on ='ISSUE_KEY',how = 'left')
+df_full = pd.merge(df_full, df_productLine[['ISSUE_KEY','Product_Line']] , on ='ISSUE_KEY',how = 'left')
 
 #### Create Dataframe for IDEAS/PR
 df_issues_s = df_full[['CREATED','ISSUE_ID','ISSUE_KEY','SUMMARY','ISSUE_TYPE_NAME','ISSUE_STATUS_NAME',
@@ -739,7 +761,9 @@ df_issues_s = df_full[['CREATED','ISSUE_ID','ISSUE_KEY','SUMMARY','ISSUE_TYPE_NA
                          'PRIORITY','RESOLUTION','CURRENT_ASSIGNEE_NAME','REPORTER_NAME','RESOLUTION_DATE','STATUS_CATEGORY_CHANGE_DATE',
                          #'TIME_SPENT','TIME_SPENT_WITH_SUBTASKS',
                        'PARENT_ISSUE_KEY','CATEGORY','BU','CUSTOMERS',
-                       'THEME','DELIVERED_DATE','Estimate_Sprints_12213',
+                       'THEME','DELIVERED_DATE',
+                       'BACKLOG_DATE','PRD_DATE','ARCHITECTURE_BUSINESS_HOURS_DURATION'
+                       ,'Estimate_Sprints_12213',
                        'Story_Points_10400','Progress___11891','Quarter_12166','Story_Points__Estimate__12398','Story_Points__Executed__12397','Story_Points__Guesstimate__12242',
                         'Product_Line', 'Target_Market'
                        #,'__Effort_12125','Layout_12166'
@@ -943,6 +967,7 @@ df_IDEA = df_IDEA[['CREATED','ISSUE_KEY','SUMMARY','ISSUE_TYPE_NAME','ISSUE_STAT
                     #'VERSION_ID',
                     'VERSION_NAME','PRIORITY',
                     'REPORTER_NAME','RESOLUTION_DATE','STATUS_CATEGORY_CHANGE_DATE',
+                    'BACKLOG_DATE','PRD_DATE','ARCHITECTURE_BUSINESS_HOURS_DURATION',
                     #'TIME_SPENT','TIME_SPENT_WITH_SUBTASKS',
                     'CATEGORY','BU','CUSTOMERS','STORYPOINTS','PROGRESS','ROADMAP','ESTIMATE_SPRINTS','ESTIMATE_STORYPOINTS','GUESSTIMATE_STORYPOINTS','EXECUTED_STORYPOINTS','TYPE_1','DIRECTION_1',
                     'Product_Line', 'Target_Market',   
