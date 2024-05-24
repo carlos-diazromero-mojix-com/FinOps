@@ -1203,7 +1203,7 @@ df_full = df_full.withColumn('StoreCode',when((df_full['thingType']=='EPCISEVENT
 .when((df_full['thingType']=='STORE')&(df_full['specName']=='')&(df_full['bridgeKey_2'].like('ALEB%')),split(df_full['bridgeKey_2'],"_").getItem(1))
 .when((df_full['thingType']=='CONTENT'),regexp_replace('premise_from_biz', r'^[0]*', ''))
 .when((df_full['thingType']=='STOREATTRIBUTES')&(df_full['bridgeKey_2'].like('FTPBRIDGE%')),df_full['Retail_StoreNumber'])
-.when((df_full['thingType']=='PRODUCT')&(df_full['specName'].isin(['SERVICES','YTEM']))&(df_full['bridgeKey_2']=='SERVICES')&(df_full['source']=='N/A')&(df_full['sourceModule']=='N/A')&(df_full['Retail_Bizstep']=='N/A'),'No Store')
+.when((df_full['thingType']=='PRODUCT')&(df_full['specName'].isin(['SERVICES','YTEM','PRODUCT_API']))&(df_full['bridgeKey_2']=='SERVICES')&(df_full['source']=='N/A')&(df_full['sourceModule']=='N/A')&(df_full['Retail_Bizstep']=='N/A'),'No Store')
                              .otherwise('N/A'))
 
 
