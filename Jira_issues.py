@@ -1116,7 +1116,7 @@ url = url_1.replace('/edit#gid=', '/export?format=csv&gid=')
 df_areas = pd.read_csv(url, dtype=str)
 
 df_YTEM_1= pd.merge(df_YTEM_1,df_areas, how='left', left_on='SUB_ASSIGNEE_NAME', right_on='NAME')
-df_YTEM_1.rename(columns={'NAME_ID':'SUB_ASSIGNEE_NAME_ID','AREA_ID':'SUBASSIGNEE_AREA_ID',
+df_YTEM_1.rename(columns={'NAME_ID':'SUB_ASSIGNEE_NAME_ID','AREA_ID':'SUBASSIGNEE_AREA_ID','RESOURCE_STATUS':'SUBASSIGNEE_RESOURCE_STATUS',
                           'AREA':'SUB_ASSIGNEE_AREA','TRACKING_PHASE':'SUB_ASSIGNEE_TRACK_PHASE',
                          'DEPARTMENT':'SUB_ASSIGNEE_DEPARTMENT'}, inplace=True)
 df_YTEM_1.drop('NAME', axis=1, inplace=True)
@@ -1336,6 +1336,9 @@ for index,row in df_IDEAS_worklogs_child.iterrows():
     df_worklog_child_idea = df_worklog_child_idea.append(df_worklog_row)
 
 df_worklog_enh_4 = df_worklog_enh_4.append(df_worklog_child_idea)
+## Worklog in Incidents Support TICKETS
+df_ticket_support = df_worklog_enh_3[df_worklog_enh_3['ISSUE_KEY_LOGGED'].str.startswith('TICKET')]
+df_worklog_enh_4 = df_worklog_enh_4.append(df_ticket_support)
 
 #Enrichment with Resource and area
 url_1 = 'https://docs.google.com/spreadsheets/d/1P7E-y7eA9-pEIevrBUDztreDWjlI4D4QyyO6eo8AKDk/edit#gid=0'
@@ -1344,13 +1347,15 @@ df_resource_areas = pd.read_csv(url, dtype=str)
 
 df_worklog_enh_4 = pd.merge(df_worklog_enh_4,df_resource_areas, left_on = 'UPDATE_NAME', right_on = 'NAME',how = 'left')
 
-df_worklog_enh_4.rename(columns={'NAME_ID':'UPDATE_NAME_ID','AREA_ID':'UPDATE_NAME_AREA_ID',
+df_worklog_enh_4.rename(columns={'NAME_ID':'UPDATE_NAME_ID','AREA_ID':'UPDATE_NAME_AREA_ID','RESOURCE_STATUS':'UPDATE_NAME_STATUS',
                                  'AREA':'UPDATE_NAME_AREA','TRACKING_PHASE':'UPDATE_NAME_TRACK_PHASE',
                                 'DEPARTMENT':'UPDATE_NAME_DEPARTMENT'}, inplace=True)
 df_worklog_enh_4.drop('NAME', axis=1, inplace=True)
+
 df_worklog_enh_4.fillna({'UPDATE_NAME':'UNK'
                          ,'UPDATE_NAME_ID':'UNK'
                          ,'UPDATE_NAME_AREA':'UNK'
+                         ,'UPDATE_NAME_STATUS':'UNK'
                          ,'UPDATE_NAME_AREA_ID':'UNK'
                          ,'SUB_SPRINT_NAME':'UNK'}
                         ,inplace=True)
@@ -1358,6 +1363,8 @@ df_worklog_enh_4.loc[(df_worklog_enh_4['ISSUE_KEY'].isnull())&
                      (df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Bug','Sub-bug'])),'WORKLOG_TYPE'] = 'Fixing'
 df_worklog_enh_4.loc[(df_worklog_enh_4['ISSUE_KEY'].isnull())&
                      (~(df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Bug','Sub-bug']))),'WORKLOG_TYPE'] = 'Other'
+df_worklog_enh_4.loc[(df_worklog_enh_4['ISSUE_KEY'].isnull())&
+                     (df_worklog_enh_4['ISSUE_KEY_LOGGED'].str.startswith('TICKET')),'WORKLOG_TYPE'] = 'Incidents'
 df_worklog_enh_4.loc[(df_worklog_enh_4['ISSUE_KEY'].notnull()),'WORKLOG_TYPE'] = 'Developing'
 
 ### Allocate worklog in a Sprint from START_DATE of Worklog
