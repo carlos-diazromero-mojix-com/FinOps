@@ -704,6 +704,18 @@ df_key_customer_idea_1['IDEA_KEY_CUSTOMERS'] = df_key_customer_idea_1['IDEA_KEY_
 df_key_customer_idea_1.loc[df_key_customer_idea_1['IDEA_KEY_CUSTOMERS'].str.startswith(":"),'IDEA_KEY_CUSTOMERS']=df_key_customer_idea_1['IDEA_KEY_CUSTOMERS'].str[1:]
 df_key_customer_idea_1.loc[df_key_customer_idea_1['IDEA_KEY_CUSTOMERS'].str.endswith(":"),'IDEA_KEY_CUSTOMERS']=df_key_customer_idea_1['IDEA_KEY_CUSTOMERS'].str[:-1]
 
+#### Target Market for IDEAS (Concat in one field)
+df_targetMarket['TARGET_MARKET']=df_targetMarket['Target_Market'] 
+df_targetMarket_1 = df_targetMarket.pivot_table(index ='ISSUE_KEY',columns ='Target_Market',values= 'TARGET_MARKET', aggfunc=sum, fill_value ='').reset_index()
+list1 = []
+for i in range (1,df_targetMarket['Target_Market'].nunique()+1,1):
+    list1.append((i))
+df_targetMarket_1.loc[:,'TARGET_MARKET'] = df_targetMarket_1.iloc[:,list1].apply(":".join, axis=1)
+df_targetMarket_1 = df_targetMarket_1[['ISSUE_KEY','TARGET_MARKET']]
+df_targetMarket_1['TARGET_MARKET'] = df_targetMarket_1['TARGET_MARKET'].str.replace("::",":").str.replace("::",":").str.replace("::",":").str.replace("::",":").str.replace("::",":").str.replace("::",":").str.replace("::",":").str.replace("::",":").str.replace("::",":").str.replace("::",":")
+df_targetMarket_1.loc[df_targetMarket_1['TARGET_MARKET'].str.startswith(":"),'TARGET_MARKET']=df_targetMarket_1['TARGET_MARKET'].str[1:]
+df_targetMarket_1.loc[df_targetMarket_1['TARGET_MARKET'].str.endswith(":"),'TARGET_MARKET']=df_targetMarket_1['TARGET_MARKET'].str[:-1]
+
 ### time In Status for Ideas
 df_timeinstatus_IDEAS = df_timeinstatus[df_timeinstatus['ISSUE_KEY'].str.startswith('IDEA')]
 df_timeinstatus_IDEAS = df_timeinstatus_IDEAS[['ISSUE_KEY','ISSUE_STATUS_ID','ISSUE_STATUS_NAME',
@@ -758,7 +770,7 @@ df_full = pd.merge(df_full, df_timeinstatus_IDEAS_backlog, on ='ISSUE_KEY',how =
 df_full = pd.merge(df_full, df_timeinstatus_IDEAS_PRD, on ='ISSUE_KEY',how = 'left')
 df_full = pd.merge(df_full, df_timeinstatus_IDEAS_FACTORY, on ='ISSUE_KEY',how = 'left')
 df_full = pd.merge(df_full, df_timeinstatus_IDEAS_Architecture, on ='ISSUE_KEY',how = 'left')
-df_full = pd.merge(df_full, df_targetMarket[['ISSUE_KEY','Target_Market']], on ='ISSUE_KEY',how = 'left')
+df_full = pd.merge(df_full, df_targetMarket_1[['ISSUE_KEY','TARGET_MARKET']], on ='ISSUE_KEY',how = 'left')
 df_full = pd.merge(df_full, df_productLine[['ISSUE_KEY','Product_Line']] , on ='ISSUE_KEY',how = 'left')
 
 #### Create Dataframe for IDEAS/PR
@@ -772,7 +784,7 @@ df_issues_s = df_full[['CREATED','ISSUE_ID','ISSUE_KEY','SUMMARY','ISSUE_TYPE_NA
                        'BACKLOG_DATE','PRD_DATE','FACTORY_DATE','ARCHITECTURE_BUSINESS_HOURS_DURATION'
                        ,'Estimate_Sprints_12213',
                        'Story_Points_10400','Progress___11891','Quarter_12166','Story_Points__Estimate__12398','Story_Points__Executed__12397','Story_Points__Guesstimate__12242',
-                        'Product_Line', 'Target_Market'
+                        'Product_Line', 'TARGET_MARKET'
                        #,'__Effort_12125','Layout_12166'
                       ]]
 df_issues_s = df_issues_s.rename(columns={"Story_Points_10400":"STORYPOINTS",
@@ -978,7 +990,7 @@ df_IDEA = df_IDEA[['CREATED','ISSUE_KEY','SUMMARY','ISSUE_TYPE_NAME','ISSUE_STAT
                     'BACKLOG_DATE','PRD_DATE','FACTORY_DATE','ARCHITECTURE_BUSINESS_HOURS_DURATION',
                     #'TIME_SPENT','TIME_SPENT_WITH_SUBTASKS',
                     'CATEGORY','BU','CUSTOMERS','STORYPOINTS','PROGRESS','ROADMAP','ESTIMATE_SPRINTS','ESTIMATE_STORYPOINTS','GUESSTIMATE_STORYPOINTS','EXECUTED_STORYPOINTS','TYPE_1','DIRECTION_1',
-                    'Product_Line', 'Target_Market',   
+                    'Product_Line', 'TARGET_MARKET',   
                     'LINKED_1_ISSUE_KEY','LINKED_1_SUMMARY','LINKED_1_ISSUE_TYPE_NAME','LINKED_1_ISSUE_STATUS_NAME','LINKED_1_ASSIGNEE_NAME',
                     'LINKED_1_SPRINT_NAME','LINKED_1_SPRINT_START_DATE','LINKED_1_SPRINT_END_DATE','LINKED_1_VERSION_NAME',
                     'LINKED_1_CATEGORY','LINKED_1_BU','LINKED_1_CUSTOMERS',
