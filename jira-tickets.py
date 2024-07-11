@@ -140,6 +140,7 @@ df_issue_ticket_s.loc[df_issue_ticket_s['SUMMARY'].str.contains('ECLIPSE'),'TENA
 df_issue_ticket_s.loc[df_issue_ticket_s['SUMMARY'].str.contains('SESAME'),'TENANT']='SESAME'
 df_issue_ticket_s.loc[df_issue_ticket_s['SUMMARY'].str.contains('Sesame'),'TENANT']='SESAME'
 df_issue_ticket_s.loc[df_issue_ticket_s['SUMMARY'].str.contains('FedEx'),'TENANT']='FEDEX'
+df_issue_ticket_s.loc[df_issue_ticket_s['SUMMARY'].str.contains('FEDEX'),'TENANT']='FEDEX'
 df_issue_ticket_s.loc[df_issue_ticket_s['SUMMARY'].str.contains('HONDA'),'TENANT']='HONDA'
 df_issue_ticket_s.loc[df_issue_ticket_s['SUMMARY'].str.contains('Honda'),'TENANT']='HONDA'
 df_issue_ticket_s.loc[df_issue_ticket_s['SUMMARY'].str.contains('Ikea'),'TENANT']='IKEA'
@@ -169,6 +170,7 @@ df_issue_ticket_s.loc[df_issue_ticket_s['SUMMARY'].str.contains('TORRA'),'TENANT
 df_issue_ticket_s.loc[df_issue_ticket_s['SUMMARY'].str.contains('IVONNE'),'TENANT']='IVONNE'
 df_issue_ticket_s.loc[df_issue_ticket_s['SUMMARY'].str.contains('STUDIOF'),'TENANT']='STUDIOF'
 df_issue_ticket_s.loc[df_issue_ticket_s['SUMMARY'].str.contains('Studio F'),'TENANT']='STUDIOF'
+df_issue_ticket_s.loc[df_issue_ticket_s['SUMMARY'].str.contains('OECH'),'TENANT']='OECH'
 
 
 df_worklog_ticket = df_worklog[df_worklog['ISSUE_KEY'].str.startswith('TICKET')]
