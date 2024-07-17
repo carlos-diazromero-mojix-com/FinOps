@@ -1127,11 +1127,29 @@ url_1 = 'https://docs.google.com/spreadsheets/d/1P7E-y7eA9-pEIevrBUDztreDWjlI4D4
 url = url_1.replace('/edit#gid=', '/export?format=csv&gid=')
 df_areas = pd.read_csv(url, dtype=str)
 
-df_YTEM_1= pd.merge(df_YTEM_1,df_areas, how='left', left_on='SUB_ASSIGNEE_NAME', right_on='NAME')
-df_YTEM_1.rename(columns={'NAME_ID':'SUB_ASSIGNEE_NAME_ID','AREA_ID':'SUBASSIGNEE_AREA_ID','RESOURCE_STATUS':'SUBASSIGNEE_RESOURCE_STATUS',
-                          'AREA':'SUB_ASSIGNEE_AREA','TRACKING_PHASE':'SUB_ASSIGNEE_TRACK_PHASE',
-                         'DEPARTMENT':'SUB_ASSIGNEE_DEPARTMENT'}, inplace=True)
-df_YTEM_1.drop('NAME', axis=1, inplace=True)
+### Sprint valid filter
+df_sprints_valid = df_Sprints[df_Sprints['SPRINT_NAME'].str.startswith('v')].sort_values('START_DATE')
+df_sprint_by_name = df_areas.join(df_sprints_valid)
+
+df_areas_1 = df_areas.assign(key=1)
+df_sprints_valid_1 = df_sprints_valid.assign(key=1)
+
+### Merge on the key (Cartesian product)
+df_sprint_by_name = pd.merge(df_areas_1, df_sprints_valid_1[['key','SPRINT_NAME','STATE']], on='key')
+
+### Drop the temporary key (optional)
+df_sprint_by_name = df_sprint_by_name.drop('key', axis=1)
+df_sprint_by_name = df_sprint_by_name.rename(columns={'SPRINT_NAME':'RESOURCE_SPRINT_NAME','STATE':'RESOURCE_STATE_SPRINT_NAME'}, )
+
+## last Assignee Name, SPRINT
+df_YTEM_1.loc[df_YTEM_1['SUB_ASSIGNEE_NAME']!='', 'LAST_ASSIGNEE_NAME'] = df_YTEM_1['SUB_ASSIGNEE_NAME']
+df_YTEM_1.loc[(df_YTEM_1['CHILD_ASSIGNEE_NAME']!='')&(df_YTEM_1['SUB_ASSIGNEE_NAME']==''), 'LAST_ASSIGNEE_NAME'] = df_YTEM_1['CHILD_ASSIGNEE_NAME']
+df_YTEM_1 = pd.merge(df_YTEM_1,df_sprint_by_name, how='outer' , left_on=['LAST_ASSIGNEE_NAME','CHILD_SPRINT_NAME'], right_on=['NAME','RESOURCE_SPRINT_NAME'])
+
+
+df_YTEM_1.rename(columns={'NAME':'RESOURCE_NAME', 'NAME_ID':'RESOURCE_NAME_ID','AREA_ID':'RESOURCE_AREA_ID','RESOURCE_STATUS':'RESOURCE_STATUS',
+                          'AREA':'RESOURCE_AREA','TRACKING_PHASE':'RESOURCE_TRACK_PHASE',
+                         'DEPARTMENT':'RESOURCE_DEPARTMENT'}, inplace=True)
 
 
 #### Upload Data to BigQuery table
