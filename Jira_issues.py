@@ -1282,7 +1282,9 @@ df_IDEAS_worklogs_sub = df_YTEM_1[['ISSUE_KEY','SUMMARY','ISSUE_STATUS_NAME'
                           ,'SUB_ISSUE_KEY','SUB_ISSUE_TYPE_NAME','SUB_ISSUE_STATUS_NAME','SUB_STATUS_CATEGORY_CHANGE_DATE','SUB_PROGRESS','SUB_SPRINT_NAME'
                           ,'TOTAL_STORYPOINTS']].drop_duplicates()
 
-df_IDEAS_worklogs_child = df_YTEM_1[(df_YTEM_1['CHILD_ISSUE_KEY'].notnull())&(df_YTEM_1['SUB_ISSUE_KEY'].isnull())][['ISSUE_KEY','SUMMARY','ISSUE_STATUS_NAME'
+df_IDEAS_worklogs_child = df_YTEM_1[(df_YTEM_1['CHILD_ISSUE_KEY'].notnull())&
+                                    ((df_YTEM_1['SUB_ISSUE_KEY'].isnull())|
+                                     (df_YTEM_1['SUB_ISSUE_KEY']==''))][['ISSUE_KEY','SUMMARY','ISSUE_STATUS_NAME'
                           ,'LINKED_1_ISSUE_KEY','LINKED_1_ISSUE_TYPE_NAME','LINKED_1_ISSUE_STATUS_NAME'
                           ,'CHILD_ISSUE_KEY','CHILD_ISSUE_TYPE_NAME','CHILD_ISSUE_STATUS_NAME','CHILD_SPRINT_DATE_VERSION','CHILD_SPRINT_END_DATE_VERSION','CHILD_SPRINT_NAME'
                           #,'SUB_ISSUE_KEY','SUB_ISSUE_TYPE_NAME','SUB_ISSUE_STATUS_NAME','SUB_STATUS_CATEGORY_CHANGE_DATE'
@@ -1349,6 +1351,8 @@ df_worklog_enh_4 = df_worklog_enh_3[~(df_worklog_enh_3['ISSUE_KEY_LOGGED'].isin(
 for index,row in df_IDEAS_worklogs_child.iterrows():
     df_worklog_row = df_worklog_enh_3[(df_worklog_enh_3['ISSUE_KEY_LOGGED']==row['CHILD_ISSUE_KEY'])]
     df_worklog_row.loc[:,'ISSUE_KEY']= row['ISSUE_KEY']
+    df_worklog_row.loc[:,'ISSUE_STATUS_NAME']= row['ISSUE_STATUS_NAME']
+    df_worklog_row.loc[:,'SUMMARY']= row['SUMMARY']
     df_worklog_row.loc[:,'LINKED_1_ISSUE_KEY']= row['LINKED_1_ISSUE_KEY']
     df_worklog_row.loc[:,'LINKED_1_ISSUE_TYPE_NAME']= row['LINKED_1_ISSUE_TYPE_NAME']
     df_worklog_row.loc[:,'LINKED_1_ISSUE_STATUS_NAME']= row['LINKED_1_ISSUE_STATUS_NAME'] 
@@ -1370,32 +1374,13 @@ df_worklog_enh_4 = df_worklog_enh_4.append(df_worklog_child_idea)
 df_ticket_support = df_worklog_enh_3[df_worklog_enh_3['ISSUE_KEY_LOGGED'].str.startswith('TICKET')]
 df_worklog_enh_4 = df_worklog_enh_4.append(df_ticket_support)
 
-#Enrichment with Resource and area
-url_1 = 'https://docs.google.com/spreadsheets/d/1P7E-y7eA9-pEIevrBUDztreDWjlI4D4QyyO6eo8AKDk/edit#gid=0'
-url = url_1.replace('/edit#gid=', '/export?format=csv&gid=')
-df_resource_areas = pd.read_csv(url, dtype=str)
-
-df_worklog_enh_4 = pd.merge(df_worklog_enh_4,df_resource_areas, left_on = 'UPDATE_NAME', right_on = 'NAME',how = 'left')
-
-df_worklog_enh_4.rename(columns={'NAME_ID':'UPDATE_NAME_ID','AREA_ID':'UPDATE_NAME_AREA_ID','RESOURCE_STATUS':'UPDATE_NAME_STATUS',
-                                 'AREA':'UPDATE_NAME_AREA','TRACKING_PHASE':'UPDATE_NAME_TRACK_PHASE',
-                                'DEPARTMENT':'UPDATE_NAME_DEPARTMENT'}, inplace=True)
-df_worklog_enh_4.drop('NAME', axis=1, inplace=True)
-
-df_worklog_enh_4.fillna({'UPDATE_NAME':'UNK'
-                         ,'UPDATE_NAME_ID':'UNK'
-                         ,'UPDATE_NAME_AREA':'UNK'
-                         ,'UPDATE_NAME_STATUS':'UNK'
-                         ,'UPDATE_NAME_AREA_ID':'UNK'
-                         ,'SUB_SPRINT_NAME':'UNK'}
-                        ,inplace=True)
-df_worklog_enh_4.loc[(df_worklog_enh_4['ISSUE_KEY'].isnull())&
-                     (df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Bug','Sub-bug'])),'WORKLOG_TYPE'] = 'Fixing'
+#WORKLOG TYPE FIELD
+df_worklog_enh_4.loc[(df_worklog_enh_4['ISSUE_KEY'].notnull()),'WORKLOG_TYPE'] = 'Developing'
+df_worklog_enh_4.loc[(df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Bug','Sub-bug'])),'WORKLOG_TYPE'] = 'Fixing'
 df_worklog_enh_4.loc[(df_worklog_enh_4['ISSUE_KEY'].isnull())&
                      (~(df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Bug','Sub-bug']))),'WORKLOG_TYPE'] = 'Other'
 df_worklog_enh_4.loc[(df_worklog_enh_4['ISSUE_KEY'].isnull())&
                      (df_worklog_enh_4['ISSUE_KEY_LOGGED'].str.startswith('TICKET')),'WORKLOG_TYPE'] = 'Incidents'
-df_worklog_enh_4.loc[(df_worklog_enh_4['ISSUE_KEY'].notnull()),'WORKLOG_TYPE'] = 'Developing'
 
 ### Allocate worklog in a Sprint from START_DATE of Worklog
 df_Sprints_valid = df_Sprints[df_Sprints['SPRINT_NAME'].str.startswith('v')].sort_values('START_DATE')
@@ -1423,6 +1408,44 @@ for i in range(0,df_Sprints_valid['SPRINT_ID'].count()):
 df_worklog_enh_4['SPRINT_ASSIGNED_START_DATE'] = pd.to_datetime(df_worklog_enh_4['SPRINT_ASSIGNED_START_DATE'])
 df_worklog_enh_4['SPRINT_ASSIGNED_END_DATE'] = pd.to_datetime(df_worklog_enh_4['SPRINT_ASSIGNED_END_DATE'])
 
+#Enrichment with Resource and area
+
+url_1 = 'https://docs.google.com/spreadsheets/d/1P7E-y7eA9-pEIevrBUDztreDWjlI4D4QyyO6eo8AKDk/edit#gid=0'
+url = url_1.replace('/edit#gid=', '/export?format=csv&gid=')
+df_resource_areas = pd.read_csv(url, dtype=str)
+
+df_sprints_valid = df_Sprints[df_Sprints['SPRINT_NAME'].str.startswith('v')].sort_values('START_DATE')
+df_sprint_by_name = df_areas.join(df_Sprints_valid)
+
+df_areas_1 = df_areas.assign(key=1)
+df_sprints_valid_1 = df_Sprints_valid.assign(key=1)
+
+# Merge on the key (Cartesian product)
+df_sprint_by_name = pd.merge(df_areas_1, df_sprints_valid_1[['key','SPRINT_NAME','STATE']], on='key')
+
+# Drop the temporary key (optional)
+df_sprint_by_name = df_sprint_by_name.drop('key', axis=1)
+df_sprint_by_name = df_sprint_by_name.rename(columns={'SPRINT_NAME':'RESOURCE_SPRINT_NAME','STATE':'RESOURCE_STATE_SPRINT_NAME'}, )
+
+##JOIN worklog with SPRINT_NAME
+
+df_worklog_enh_4 = pd.merge(df_worklog_enh_4,df_sprint_by_name, how='outer' , left_on=['UPDATE_NAME','SPRINT_ASSIGNED'], right_on=['NAME','RESOURCE_SPRINT_NAME'])
+
+df_worklog_enh_4.rename(columns={'NAME_ID':'UPDATE_NAME_ID','AREA_ID':'UPDATE_NAME_AREA_ID','RESOURCE_STATUS':'UPDATE_NAME_STATUS',
+                                 'AREA':'UPDATE_NAME_AREA','TRACKING_PHASE':'UPDATE_NAME_TRACK_PHASE',
+                                'DEPARTMENT':'UPDATE_NAME_DEPARTMENT'}, inplace=True)
+df_worklog_enh_4.loc[df_worklog_enh_4['ISSUE_KEY_LOGGED'].isnull(),'UPDATE_NAME'] = df_worklog_enh_4['NAME']
+df_worklog_enh_4.loc[df_worklog_enh_4['ISSUE_KEY_LOGGED'].isnull(),'SPRINT_ASSIGNED'] = df_worklog_enh_4['RESOURCE_SPRINT_NAME']
+df_worklog_enh_4.drop(['NAME','RESOURCE_SPRINT_NAME'], axis=1, inplace=True)
+
+df_worklog_enh_4.fillna({'UPDATE_NAME':'Unknown'
+                         ,'UPDATE_NAME_ID':'Unknown'
+                         ,'UPDATE_NAME_AREA':'Unknown'
+                         ,'UPDATE_NAME_STATUS':'Unknown'
+                         ,'UPDATE_NAME_AREA_ID':'Unknown'
+                         ,'SUB_SPRINT_NAME':'Unknown'
+                         ,'UPDATE_NAME_DEPARTMENT':'Unknown'}
+                        ,inplace=True)
 
 #### Upload Worklog aggregation to BigQuery
 print('worklog write in saas-analytics-io.processed.jira_processed_IDEAS_worklog')
