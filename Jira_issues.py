@@ -1629,8 +1629,7 @@ df_worklog_enh_4.fillna({'UPDATE_NAME':'Unknown'
                          ,'SUB_SPRINT_NAME':'Unknown'
                          ,'UPDATE_NAME_DEPARTMENT':'Unknown'
                          ,'WORK_TIME':'Unknown'
-                         ,'PTO':'Unknown'
-                         ,'HOLIDAYS':'Unknown'}
+                      }
                         ,inplace=True)
 
 #### Upload Worklog aggregation to BigQuery
