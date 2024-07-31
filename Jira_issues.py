@@ -1141,6 +1141,97 @@ df_sprint_by_name = pd.merge(df_areas_1, df_sprints_valid_1[['key','SPRINT_NAME'
 df_sprint_by_name = df_sprint_by_name.drop('key', axis=1)
 df_sprint_by_name = df_sprint_by_name.rename(columns={'SPRINT_NAME':'RESOURCE_SPRINT_NAME','STATE':'RESOURCE_STATE_SPRINT_NAME'}, )
 
+### Vacations AND Holidays by Resource and Sprint
+
+#Read Data of holidays and timeOff from bamboohr
+time_extra = 30
+str_day_pto = (current_date + timedelta(days = time_extra)).strftime("%Y-%m-%d")
+print(str_day_pto)
+
+
+url = "https://api.bamboohr.com/api/gateway.php/mojix/v1/time_off/whos_out/?start=2023-01-01&end=%s"%(str_day_pto)
+headers = {
+    "Accept": "application/json",
+    "authorization": "Basic MjYxNzcxOTVkNjZiNjZlMTRlMDVmMzlkNTkzY2IxODA5ODhhNTk5YTp4"}
+response = requests.get(url, headers=headers)
+data = json.loads(response.text)
+df = pd.DataFrame(data)
+#print(response.text)
+df_time_off = df[df['type']=='timeOff']
+df_holidays = df[df['type']=='holiday']
+
+# Convert date columns to datetime
+df_time_off['start'] = pd.to_datetime(df_time_off['start'])
+df_time_off['end'] = pd.to_datetime(df_time_off['end'])
+
+def count_vacation_days_per_yearweek(df_time_off):
+    """Counts vacation days per year-week for each employee.
+  Args:
+    df: DataFrame with 'name', 'start', and 'end' columns.
+  Returns:
+    A DataFrame with 'name', 'yearWeek', and 'days' columns.
+  """
+    # Create a DataFrame to store results
+    df_out = pd.DataFrame(columns=['NAME', 'YEAR_WEEK', 'days'])
+
+    for index, row in df_time_off.iterrows():
+        name = row['name']
+        start_date = row['start']
+        end_date = row['end']
+        #print(row)
+
+        # Iterate through each date within the vacation range
+        for date in pd.date_range(start=start_date, end=end_date):
+            # Extract year and week number
+            Week = date.isocalendar()[1]
+            year = date.year
+            yearWeek= 'W'+str(Week)+'-'+str(year)
+            weekday = date.isoweekday()
+            #print(date,weekday)
+
+            # Check if a row exists for this employee and yearWeek
+            existing_row = df_out[(df_out['NAME'] == name) & (df_out['YEAR_WEEK'] == yearWeek)]
+
+            # If row exists, add 1 to days, otherwise create a new row
+            if existing_row.empty:
+                if weekday <=5:
+                    df_out = df_out.append({'NAME': name, 'YEAR_WEEK': yearWeek, 'days': 1}, ignore_index=True)
+                else:
+                    df_out = df_out.append({'NAME': name, 'YEAR_WEEK': yearWeek, 'days': 0}, ignore_index=True)
+                    #print('weekend')
+            else:
+                if weekday<=5:
+                    df_out.loc[existing_row.index, 'days'] += 1
+                else:
+                    df_out.loc[existing_row.index, 'days'] += 0
+                    #print('weekend')
+                
+
+    return df_out
+
+df_days_out = count_vacation_days_per_yearweek(df_time_off.copy())
+df_holidays_out = count_vacation_days_per_yearweek(df_holidays.copy())
+
+#SPRINT BY WEEK
+url_1 = 'https://docs.google.com/spreadsheets/d/1P7E-y7eA9-pEIevrBUDztreDWjlI4D4QyyO6eo8AKDk/edit?gid=445566721#gid=445566721'
+url = url_1.replace('/edit?gid=', '/export?format=csv&gid=')
+df_sprints_week = pd.read_csv(url, dtype = 'str')
+
+df_out_sprint = pd.merge(df_days_out, df_sprints_week, how = 'inner', on = 'YEAR_WEEK')
+#df_out_sprint.loc[df_out_sprint['days']>5,'days']=5
+df_out_sprint = df_out_sprint.groupby(['NAME','RESOURCE_SPRINT_NAME']).sum()[['days']].reset_index()
+
+df_holidays_out_sprint = pd.merge(df_holidays_out, df_sprints_week, how = 'inner', on = 'YEAR_WEEK')
+df_holidays_out_sprint = df_holidays_out_sprint.groupby(['RESOURCE_SPRINT_NAME']).sum()[['days']].reset_index()
+df_out_sprint.rename(columns={'days':'PTO'},inplace = True)
+df_holidays_out_sprint.rename(columns={'days':'HOLIDAYS'},inplace = True)
+df_sprint_by_name = pd.merge(df_sprint_by_name, df_holidays_out_sprint, how='left', on ='RESOURCE_SPRINT_NAME')
+df_sprint_by_name = pd.merge(df_sprint_by_name, df_out_sprint, how='left', on =['NAME','RESOURCE_SPRINT_NAME'])
+df_sprint_by_name.loc[df_sprint_by_name['HOLIDAYS'].isnull(),'HOLIDAYS']=0
+df_sprint_by_name.loc[df_sprint_by_name['PTO'].isnull(),'PTO']=0
+df_sprint_by_name['HOLIDAYS'] = df_sprint_by_name['HOLIDAYS'].astype(int)
+df_sprint_by_name['PTO'] = df_sprint_by_name['PTO'].astype(int)
+
 ## last Assignee Name, SPRINT
 df_YTEM_1.loc[df_YTEM_1['SUB_ASSIGNEE_NAME']!='', 'LAST_ASSIGNEE_NAME'] = df_YTEM_1['SUB_ASSIGNEE_NAME']
 df_YTEM_1.loc[(df_YTEM_1['CHILD_ASSIGNEE_NAME']!='')&(df_YTEM_1['SUB_ASSIGNEE_NAME']==''), 'LAST_ASSIGNEE_NAME'] = df_YTEM_1['CHILD_ASSIGNEE_NAME']
@@ -1427,6 +1518,98 @@ df_sprint_by_name = pd.merge(df_areas_1, df_sprints_valid_1[['key','SPRINT_NAME'
 df_sprint_by_name = df_sprint_by_name.drop('key', axis=1)
 df_sprint_by_name = df_sprint_by_name.rename(columns={'SPRINT_NAME':'RESOURCE_SPRINT_NAME','STATE':'RESOURCE_STATE_SPRINT_NAME'}, )
 
+
+### Vacations AND Holidays by Resource and Sprint
+
+#Read Data of holidays and timeOff from bamboohr
+time_extra = 30
+str_day_pto = (current_date + timedelta(days = time_extra)).strftime("%Y-%m-%d")
+print(str_day_pto)
+
+
+url = "https://api.bamboohr.com/api/gateway.php/mojix/v1/time_off/whos_out/?start=2023-01-01&end=%s"%(str_day_pto)
+headers = {
+    "Accept": "application/json",
+    "authorization": "Basic MjYxNzcxOTVkNjZiNjZlMTRlMDVmMzlkNTkzY2IxODA5ODhhNTk5YTp4"}
+response = requests.get(url, headers=headers)
+data = json.loads(response.text)
+df = pd.DataFrame(data)
+#print(response.text)
+df_time_off = df[df['type']=='timeOff']
+df_holidays = df[df['type']=='holiday']
+
+# Convert date columns to datetime
+df_time_off['start'] = pd.to_datetime(df_time_off['start'])
+df_time_off['end'] = pd.to_datetime(df_time_off['end'])
+
+def count_vacation_days_per_yearweek(df_time_off):
+    """Counts vacation days per year-week for each employee.
+  Args:
+    df: DataFrame with 'name', 'start', and 'end' columns.
+  Returns:
+    A DataFrame with 'name', 'yearWeek', and 'days' columns.
+  """
+    # Create a DataFrame to store results
+    df_out = pd.DataFrame(columns=['NAME', 'YEAR_WEEK', 'days'])
+
+    for index, row in df_time_off.iterrows():
+        name = row['name']
+        start_date = row['start']
+        end_date = row['end']
+        #print(row)
+
+        # Iterate through each date within the vacation range
+        for date in pd.date_range(start=start_date, end=end_date):
+            # Extract year and week number
+            Week = date.isocalendar()[1]
+            year = date.year
+            yearWeek= 'W'+str(Week)+'-'+str(year)
+            weekday = date.isoweekday()
+            #print(date,weekday)
+
+            # Check if a row exists for this employee and yearWeek
+            existing_row = df_out[(df_out['NAME'] == name) & (df_out['YEAR_WEEK'] == yearWeek)]
+
+            # If row exists, add 1 to days, otherwise create a new row
+            if existing_row.empty:
+                if weekday <=5:
+                    df_out = df_out.append({'NAME': name, 'YEAR_WEEK': yearWeek, 'days': 1}, ignore_index=True)
+                else:
+                    df_out = df_out.append({'NAME': name, 'YEAR_WEEK': yearWeek, 'days': 0}, ignore_index=True)
+                    #print('weekend')
+            else:
+                if weekday<=5:
+                    df_out.loc[existing_row.index, 'days'] += 1
+                else:
+                    df_out.loc[existing_row.index, 'days'] += 0
+                    #print('weekend')
+                
+
+    return df_out
+
+df_days_out = count_vacation_days_per_yearweek(df_time_off.copy())
+df_holidays_out = count_vacation_days_per_yearweek(df_holidays.copy())
+
+#SPRINT BY WEEK
+url_1 = 'https://docs.google.com/spreadsheets/d/1P7E-y7eA9-pEIevrBUDztreDWjlI4D4QyyO6eo8AKDk/edit?gid=445566721#gid=445566721'
+url = url_1.replace('/edit?gid=', '/export?format=csv&gid=')
+df_sprints_week = pd.read_csv(url, dtype = 'str')
+
+df_out_sprint = pd.merge(df_days_out, df_sprints_week, how = 'inner', on = 'YEAR_WEEK')
+#df_out_sprint.loc[df_out_sprint['days']>5,'days']=5
+df_out_sprint = df_out_sprint.groupby(['NAME','RESOURCE_SPRINT_NAME']).sum()[['days']].reset_index()
+
+df_holidays_out_sprint = pd.merge(df_holidays_out, df_sprints_week, how = 'inner', on = 'YEAR_WEEK')
+df_holidays_out_sprint = df_holidays_out_sprint.groupby(['RESOURCE_SPRINT_NAME']).sum()[['days']].reset_index()
+df_out_sprint.rename(columns={'days':'PTO'},inplace = True)
+df_holidays_out_sprint.rename(columns={'days':'HOLIDAYS'},inplace = True)
+df_sprint_by_name = pd.merge(df_sprint_by_name, df_holidays_out_sprint, how='left', on ='RESOURCE_SPRINT_NAME')
+df_sprint_by_name = pd.merge(df_sprint_by_name, df_out_sprint, how='left', on =['NAME','RESOURCE_SPRINT_NAME'])
+df_sprint_by_name.loc[df_sprint_by_name['HOLIDAYS'].isnull(),'HOLIDAYS']=0
+df_sprint_by_name.loc[df_sprint_by_name['PTO'].isnull(),'PTO']=0
+df_sprint_by_name['HOLIDAYS'] = df_sprint_by_name['HOLIDAYS'].astype(int)
+df_sprint_by_name['PTO'] = df_sprint_by_name['PTO'].astype(int)
+
 ##JOIN worklog with SPRINT_NAME
 
 df_worklog_enh_4 = pd.merge(df_worklog_enh_4,df_sprint_by_name, how='outer' , left_on=['UPDATE_NAME','SPRINT_ASSIGNED'], right_on=['NAME','RESOURCE_SPRINT_NAME'])
@@ -1444,7 +1627,10 @@ df_worklog_enh_4.fillna({'UPDATE_NAME':'Unknown'
                          ,'UPDATE_NAME_STATUS':'Unknown'
                          ,'UPDATE_NAME_AREA_ID':'Unknown'
                          ,'SUB_SPRINT_NAME':'Unknown'
-                         ,'UPDATE_NAME_DEPARTMENT':'Unknown'}
+                         ,'UPDATE_NAME_DEPARTMENT':'Unknown'
+                         ,'WORK_TIME':'Unknown'
+                         ,'PTO':'Unknown'
+                         ,'HOLIDAYS':'Unknown'}
                         ,inplace=True)
 
 #### Upload Worklog aggregation to BigQuery
