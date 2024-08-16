@@ -1247,6 +1247,23 @@ df_YTEM_1.rename(columns={'NAME':'RESOURCE_NAME', 'NAME_ID':'RESOURCE_NAME_ID','
                           'AREA':'RESOURCE_AREA','TRACKING_PHASE':'RESOURCE_TRACK_PHASE',
                          'DEPARTMENT':'RESOURCE_DEPARTMENT'}, inplace=True)
 
+#UTILIZATION_TYPE FIELD
+df_YTEM_1.loc[:,'UTILIZATION_TYPE']= 'Idea'
+
+#WORKLOG TYPE FIELD
+df_YTEM_1.loc[(df_YTEM_1['UTILIZATION_TYPE'].isin(['Idea']))&
+                     (df_YTEM_1['SUB_ISSUE_TYPE_NAME'].isin(['Dev-Sub-Task','Sub-task','Vulnerability'])),'WORK_TYPE'] = 'Dev'
+df_YTEM_1.loc[(df_YTEM_1['UTILIZATION_TYPE'].isin(['Idea']))&
+                     (df_YTEM_1['SUB_ISSUE_TYPE_NAME'].isin(['Bug','Sub-bug'])),'WORK_TYPE'] = 'Bug'
+df_YTEM_1.loc[(df_YTEM_1['UTILIZATION_TYPE'].isin(['Idea']))&
+                     (df_YTEM_1['SUB_ISSUE_TYPE_NAME'].isin(['Test','Sub-Design'])),'WORK_TYPE'] = 'Task'
+df_YTEM_1.loc[(df_YTEM_1['UTILIZATION_TYPE'].isin(['Idea']))&
+                     (df_YTEM_1['SUB_ISSUE_TYPE_NAME'].isin(['Sub-CloudOps'])),'WORK_TYPE'] = 'Infra'
+df_YTEM_1.loc[(df_YTEM_1['UTILIZATION_TYPE'].isin(['Idea']))&
+                     (df_YTEM_1['SUB_ISSUE_TYPE_NAME'].isin(['Doc','Sub-doc'])),'WORK_TYPE'] = 'Doc'
+
+
+df_YTEM_1.loc[df_YTEM_1['WORKLOG_TYPE'].isnull(),'WORKLOG_TYPE'] = 'Unk'
 
 #### Upload Data to BigQuery table
 #saas-analytics-io.processed.jira_processed_IDEAS
