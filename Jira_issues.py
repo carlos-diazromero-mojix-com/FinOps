@@ -1221,6 +1221,11 @@ df_out_sprint = pd.merge(df_days_out, df_sprints_week, how = 'inner', on = 'YEAR
 #df_out_sprint.loc[df_out_sprint['days']>5,'days']=5
 df_out_sprint = df_out_sprint.groupby(['NAME','RESOURCE_SPRINT_NAME']).sum()[['days']].reset_index()
 
+#Hardcoded Solution to fix unjoin NAMES between JIRA and BAMBOO
+df_out_sprint.loc[df_out_sprint['NAME']=='Adrian Rodríguez', 'NAME']='Adrian Rodriguez'
+df_out_sprint.loc[df_out_sprint['NAME']=='Ricardo Sabat', 'NAME']='Santiago Sabat'
+df_out_sprint.loc[df_out_sprint['NAME']=='Denar Terrazas', 'NAME']='Denar T.'
+
 df_holidays_out_sprint = pd.merge(df_holidays_out, df_sprints_week, how = 'inner', on = 'YEAR_WEEK')
 df_holidays_out_sprint = df_holidays_out_sprint.groupby(['RESOURCE_SPRINT_NAME']).sum()[['days']].reset_index()
 df_out_sprint.rename(columns={'days':'PTO'},inplace = True)
@@ -1465,13 +1470,57 @@ df_worklog_enh_4 = df_worklog_enh_4.append(df_worklog_child_idea)
 df_ticket_support = df_worklog_enh_3[df_worklog_enh_3['ISSUE_KEY_LOGGED'].str.startswith('TICKET')]
 df_worklog_enh_4 = df_worklog_enh_4.append(df_ticket_support)
 
+#UTILIZATION_TYPE FIELD
+df_worklog_enh_4.loc[df_worklog_enh_4['ISSUE_KEY'].notnull(),'UTILIZATION_TYPE']= 'Idea'
+
+df_worklog_enh_4.loc[df_worklog_enh_4['ISSUE_KEY'].isnull(),'UTILIZATION_TYPE']= 'Operational'
+
+#df_worklog_enh_4.loc[df_worklog_enh_4['ISSUE_KEY_LOGGED'].fillna('').str.startswith('BAT'),'UTILIZATION_TYPE']= 'Incident'
+df_worklog_enh_4.loc[df_worklog_enh_4['ISSUE_KEY_LOGGED'].fillna('').str.startswith('TICKET'),'UTILIZATION_TYPE']= 'Incident'
+df_worklog_enh_4.loc[df_worklog_enh_4['ISSUE_KEY_LOGGED'].fillna('').str.startswith('COE'),'UTILIZATION_TYPE']= 'Incident'
+df_worklog_enh_4.loc[df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED']=='Troubleshooting','UTILIZATION_TYPE']= 'Incident'
+
+df_worklog_enh_4.loc[df_worklog_enh_4['UTILIZATION_TYPE'].isnull(),'UTILIZATION_TYPE'] = 'Unk'
+
 #WORKLOG TYPE FIELD
-df_worklog_enh_4.loc[(df_worklog_enh_4['ISSUE_KEY'].notnull()),'WORKLOG_TYPE'] = 'Developing'
-df_worklog_enh_4.loc[(df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Bug','Sub-bug'])),'WORKLOG_TYPE'] = 'Fixing'
-df_worklog_enh_4.loc[(df_worklog_enh_4['ISSUE_KEY'].isnull())&
-                     (~(df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Bug','Sub-bug']))),'WORKLOG_TYPE'] = 'Other'
-df_worklog_enh_4.loc[(df_worklog_enh_4['ISSUE_KEY'].isnull())&
-                     (df_worklog_enh_4['ISSUE_KEY_LOGGED'].str.startswith('TICKET')),'WORKLOG_TYPE'] = 'Incidents'
+df_worklog_enh_4.loc[(df_worklog_enh_4['UTILIZATION_TYPE'].isin(['Idea']))&
+                     (df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Dev-Sub-Task','Sub-task','Vulnerability'])),'WORKLOG_TYPE'] = 'Dev'
+df_worklog_enh_4.loc[(df_worklog_enh_4['UTILIZATION_TYPE'].isin(['Idea']))&
+                     (df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Bug','Sub-bug'])),'WORKLOG_TYPE'] = 'Bug'
+df_worklog_enh_4.loc[(df_worklog_enh_4['UTILIZATION_TYPE'].isin(['Idea']))&
+                     (df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Test','Sub-Design'])),'WORKLOG_TYPE'] = 'Task'
+df_worklog_enh_4.loc[(df_worklog_enh_4['UTILIZATION_TYPE'].isin(['Idea']))&
+                     (df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Sub-CloudOps'])),'WORKLOG_TYPE'] = 'Infra'
+df_worklog_enh_4.loc[(df_worklog_enh_4['UTILIZATION_TYPE'].isin(['Idea']))&
+                     (df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Doc','Sub-doc'])),'WORKLOG_TYPE'] = 'Doc'
+
+
+df_worklog_enh_4.loc[(df_worklog_enh_4['UTILIZATION_TYPE'].isin(['Incident'])),'WORKLOG_TYPE'] = 'Support'
+
+df_worklog_enh_4.loc[(df_worklog_enh_4['UTILIZATION_TYPE'].isin(['Operational']))&
+                     (df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Dev-Sub-task','Test'])),'WORKLOG_TYPE'] = 'Dev'
+df_worklog_enh_4.loc[(df_worklog_enh_4['UTILIZATION_TYPE'].isin(['Operational']))&
+                     (df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Bug','Sub-bug'])),'WORKLOG_TYPE'] = 'Bug'
+df_worklog_enh_4.loc[(df_worklog_enh_4['UTILIZATION_TYPE'].isin(['Operational']))&
+                     (df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Sub-task','Improvement'])),'WORKLOG_TYPE'] = 'Task'
+
+df_worklog_enh_4.loc[(df_worklog_enh_4['UTILIZATION_TYPE'].isin(['Operational']))&
+                     (df_worklog_enh_4['ISSUE_KEY_LOGGED'].str.startswith(['RECM']))&
+                     (df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Sub-CloudOps'])),'WORKLOG_TYPE'] = 'Infra'
+df_worklog_enh_4.loc[(df_worklog_enh_4['UTILIZATION_TYPE'].isin(['Operational']))&
+                     (df_worklog_enh_4['ISSUE_KEY_LOGGED'].str.startswith(['CM']))&
+                     (df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Task','Sub-task','Service Request'])),'WORKLOG_TYPE'] = 'Infra'
+df_worklog_enh_4.loc[(df_worklog_enh_4['UTILIZATION_TYPE'].isin(['Operational']))&
+                     ((df_worklog_enh_4['ISSUE_KEY_LOGGED'].str.startswith('RPLAT'))|(df_worklog_enh_4['ISSUE_KEY_LOGGED'].str.startswith('BPLAT')))&
+                     (df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Vulnerability'])),'WORKLOG_TYPE'] = 'Infra'
+
+df_worklog_enh_4.loc[(df_worklog_enh_4['UTILIZATION_TYPE'].isin(['Operational']))&
+                     (df_worklog_enh_4['ISSUE_TYPE_NAME_LOGGED'].isin(['Doc','Sub-doc'])),'WORKLOG_TYPE'] = 'Doc'
+
+
+df_worklog_enh_4.loc[df_worklog_enh_4['WORKLOG_TYPE'].isnull(),'WORKLOG_TYPE'] = 'Unk'
+
+
 
 ### Allocate worklog in a Sprint from START_DATE of Worklog
 df_Sprints_valid = df_Sprints[df_Sprints['SPRINT_NAME'].str.startswith('v')].sort_values('START_DATE')
@@ -1599,6 +1648,11 @@ df_out_sprint = pd.merge(df_days_out, df_sprints_week, how = 'inner', on = 'YEAR
 #df_out_sprint.loc[df_out_sprint['days']>5,'days']=5
 df_out_sprint = df_out_sprint.groupby(['NAME','RESOURCE_SPRINT_NAME']).sum()[['days']].reset_index()
 
+#Hardcoded Solution to fix unjoin NAMES between JIRA and BAMBOO
+df_out_sprint.loc[df_out_sprint['NAME']=='Adrian Rodríguez', 'NAME']='Adrian Rodriguez'
+df_out_sprint.loc[df_out_sprint['NAME']=='Ricardo Sabat', 'NAME']='Santiago Sabat'
+df_out_sprint.loc[df_out_sprint['NAME']=='Denar Terrazas', 'NAME']='Denar T.'
+
 df_holidays_out_sprint = pd.merge(df_holidays_out, df_sprints_week, how = 'inner', on = 'YEAR_WEEK')
 df_holidays_out_sprint = df_holidays_out_sprint.groupby(['RESOURCE_SPRINT_NAME']).sum()[['days']].reset_index()
 df_out_sprint.rename(columns={'days':'PTO'},inplace = True)
@@ -1609,6 +1663,8 @@ df_sprint_by_name.loc[df_sprint_by_name['HOLIDAYS'].isnull(),'HOLIDAYS']=0
 df_sprint_by_name.loc[df_sprint_by_name['PTO'].isnull(),'PTO']=0
 df_sprint_by_name['HOLIDAYS'] = df_sprint_by_name['HOLIDAYS'].astype(int)
 df_sprint_by_name['PTO'] = df_sprint_by_name['PTO'].astype(int)
+
+
 
 ##JOIN worklog with SPRINT_NAME
 
