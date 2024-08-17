@@ -1263,7 +1263,7 @@ df_YTEM_1.loc[(df_YTEM_1['UTILIZATION_TYPE'].isin(['Idea']))&
                      (df_YTEM_1['SUB_ISSUE_TYPE_NAME'].isin(['Doc','Sub-doc'])),'WORK_TYPE'] = 'Doc'
 
 
-df_YTEM_1.loc[df_YTEM_1['WORKLOG_TYPE'].isnull(),'WORKLOG_TYPE'] = 'Unk'
+df_YTEM_1.loc[df_YTEM_1['WORK_TYPE'].isnull(),'WORK_TYPE'] = 'Unk'
 
 #### Upload Data to BigQuery table
 #saas-analytics-io.processed.jira_processed_IDEAS
