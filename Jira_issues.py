@@ -1150,9 +1150,7 @@ print(str_day_pto)
 
 
 url = "https://api.bamboohr.com/api/gateway.php/mojix/v1/time_off/whos_out/?start=2023-01-01&end=%s"%(str_day_pto)
-headers = {
-    "Accept": "application/json",
-    "authorization": "Basic MjYxNzcxOTVkNjZiNjZlMTRlMDVmMzlkNTkzY2IxODA5ODhhNTk5YTp4"}
+
 # response = requests.get(url, headers=headers)
 # data = json.loads(response.text)
 # df = pd.DataFrame(data)
@@ -1596,9 +1594,7 @@ print(str_day_pto)
 
 
 url = "https://api.bamboohr.com/api/gateway.php/mojix/v1/time_off/whos_out/?start=2023-01-01&end=%s"%(str_day_pto)
-headers = {
-    "Accept": "application/json",
-    "authorization": "Basic MjYxNzcxOTVkNjZiNjZlMTRlMDVmMzlkNTkzY2IxODA5ODhhNTk5YTp4"}
+
 # response = requests.get(url, headers=headers)
 # data = json.loads(response.text)
 # df = pd.DataFrame(data)
