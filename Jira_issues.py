@@ -640,7 +640,7 @@ df_businessUnit_1.loc[df_businessUnit_1['BU'].str.endswith(":"),'BU']=df_busines
 
 #### Fix Version (Concat in one Field)
 df_IssueFixVersions['VERSION_NAME_2']=df_IssueFixVersions['VERSION_NAME'] 
-df_IssueFixVersions_1 = df_IssueFixVersions.pivot_table(index ='ISSUE_KEY',columns ='VERSION_NAME',values= 'VERSION_NAME_2', aggfunc=sum, fill_value ='').reset_index()
+df_IssueFixVersions_1 = df_IssueFixVersions[df_IssueFixVersions['ISSUE_KEY'].str.startswith("RPLAT-")].pivot_table(index ='ISSUE_KEY',columns ='VERSION_NAME',values= 'VERSION_NAME_2', aggfunc=sum, fill_value ='').reset_index()
 list1 = []
 for i in range (1,df_IssueFixVersions['VERSION_NAME'].nunique()+1,1):
     list1.append((i))
@@ -1150,19 +1150,19 @@ print(str_day_pto)
 
 
 url = "https://api.bamboohr.com/api/gateway.php/mojix/v1/time_off/whos_out/?start=2023-01-01&end=%s"%(str_day_pto)
-headers = {
-    "Accept": "application/json",
-    "authorization": "Basic MjYxNzcxOTVkNjZiNjZlMTRlMDVmMzlkNTkzY2IxODA5ODhhNTk5YTp4"}
-response = requests.get(url, headers=headers)
-data = json.loads(response.text)
-df = pd.DataFrame(data)
+
+# response = requests.get(url, headers=headers)
+# data = json.loads(response.text)
+# df = pd.DataFrame(data)
 #print(response.text)
-df_time_off = df[df['type']=='timeOff']
-df_holidays = df[df['type']=='holiday']
+# df_time_off = df[df['type']=='timeOff']
+df_time_off = pd.DataFrame(columns=['name', 'start', 'end'])
+# df_holidays = df[df['type']=='holiday']
+df_holidays = pd.DataFrame(columns=['name', 'start', 'end'])
 
 # Convert date columns to datetime
-df_time_off['start'] = pd.to_datetime(df_time_off['start'])
-df_time_off['end'] = pd.to_datetime(df_time_off['end'])
+# df_time_off['start'] = pd.to_datetime(df_time_off['start'])
+# df_time_off['end'] = pd.to_datetime(df_time_off['end'])
 
 def count_vacation_days_per_yearweek(df_time_off):
     """Counts vacation days per year-week for each employee.
@@ -1174,37 +1174,37 @@ def count_vacation_days_per_yearweek(df_time_off):
     # Create a DataFrame to store results
     df_out = pd.DataFrame(columns=['NAME', 'YEAR_WEEK', 'days'])
 
-    for index, row in df_time_off.iterrows():
-        name = row['name']
-        start_date = row['start']
-        end_date = row['end']
-        #print(row)
+    # for index, row in df_time_off.iterrows():
+    #     name = row['name']
+    #     start_date = row['start']
+    #     end_date = row['end']
+    #     #print(row)
 
-        # Iterate through each date within the vacation range
-        for date in pd.date_range(start=start_date, end=end_date):
-            # Extract year and week number
-            Week = date.isocalendar()[1]
-            year = date.year
-            yearWeek= 'W'+str(Week)+'-'+str(year)
-            weekday = date.isoweekday()
-            #print(date,weekday)
+    #     # Iterate through each date within the vacation range
+    #     for date in pd.date_range(start=start_date, end=end_date):
+    #         # Extract year and week number
+    #         Week = date.isocalendar()[1]
+    #         year = date.year
+    #         yearWeek= 'W'+str(Week)+'-'+str(year)
+    #         weekday = date.isoweekday()
+    #         #print(date,weekday)
 
-            # Check if a row exists for this employee and yearWeek
-            existing_row = df_out[(df_out['NAME'] == name) & (df_out['YEAR_WEEK'] == yearWeek)]
+    #         # Check if a row exists for this employee and yearWeek
+    #         existing_row = df_out[(df_out['NAME'] == name) & (df_out['YEAR_WEEK'] == yearWeek)]
 
-            # If row exists, add 1 to days, otherwise create a new row
-            if existing_row.empty:
-                if weekday <=5:
-                    df_out = df_out.append({'NAME': name, 'YEAR_WEEK': yearWeek, 'days': 1}, ignore_index=True)
-                else:
-                    df_out = df_out.append({'NAME': name, 'YEAR_WEEK': yearWeek, 'days': 0}, ignore_index=True)
-                    #print('weekend')
-            else:
-                if weekday<=5:
-                    df_out.loc[existing_row.index, 'days'] += 1
-                else:
-                    df_out.loc[existing_row.index, 'days'] += 0
-                    #print('weekend')
+    #         # If row exists, add 1 to days, otherwise create a new row
+    #         if existing_row.empty:
+    #             if weekday <=5:
+    #                 df_out = df_out.append({'NAME': name, 'YEAR_WEEK': yearWeek, 'days': 1}, ignore_index=True)
+    #             else:
+    #                 df_out = df_out.append({'NAME': name, 'YEAR_WEEK': yearWeek, 'days': 0}, ignore_index=True)
+    #                 #print('weekend')
+    #         else:
+    #             if weekday<=5:
+    #                 df_out.loc[existing_row.index, 'days'] += 1
+    #             else:
+    #                 df_out.loc[existing_row.index, 'days'] += 0
+    #                 #print('weekend')
                 
 
     return df_out
@@ -1594,19 +1594,19 @@ print(str_day_pto)
 
 
 url = "https://api.bamboohr.com/api/gateway.php/mojix/v1/time_off/whos_out/?start=2023-01-01&end=%s"%(str_day_pto)
-headers = {
-    "Accept": "application/json",
-    "authorization": "Basic MjYxNzcxOTVkNjZiNjZlMTRlMDVmMzlkNTkzY2IxODA5ODhhNTk5YTp4"}
-response = requests.get(url, headers=headers)
-data = json.loads(response.text)
-df = pd.DataFrame(data)
+
+# response = requests.get(url, headers=headers)
+# data = json.loads(response.text)
+# df = pd.DataFrame(data)
 #print(response.text)
-df_time_off = df[df['type']=='timeOff']
-df_holidays = df[df['type']=='holiday']
+# df_time_off = df[df['type']=='timeOff']
+df_time_off = pd.DataFrame(columns=['name', 'start', 'end'])
+# df_holidays = df[df['type']=='holiday']
+df_holidays = pd.DataFrame(columns=['name', 'start', 'end'])
 
 # Convert date columns to datetime
-df_time_off['start'] = pd.to_datetime(df_time_off['start'])
-df_time_off['end'] = pd.to_datetime(df_time_off['end'])
+# df_time_off['start'] = pd.to_datetime(df_time_off['start'])
+# df_time_off['end'] = pd.to_datetime(df_time_off['end'])
 
 def count_vacation_days_per_yearweek(df_time_off):
     """Counts vacation days per year-week for each employee.
@@ -1618,37 +1618,37 @@ def count_vacation_days_per_yearweek(df_time_off):
     # Create a DataFrame to store results
     df_out = pd.DataFrame(columns=['NAME', 'YEAR_WEEK', 'days'])
 
-    for index, row in df_time_off.iterrows():
-        name = row['name']
-        start_date = row['start']
-        end_date = row['end']
-        #print(row)
+    # for index, row in df_time_off.iterrows():
+    #     name = row['name']
+    #     start_date = row['start']
+    #     end_date = row['end']
+    #     #print(row)
 
-        # Iterate through each date within the vacation range
-        for date in pd.date_range(start=start_date, end=end_date):
-            # Extract year and week number
-            Week = date.isocalendar()[1]
-            year = date.year
-            yearWeek= 'W'+str(Week)+'-'+str(year)
-            weekday = date.isoweekday()
-            #print(date,weekday)
+    #     # Iterate through each date within the vacation range
+    #     for date in pd.date_range(start=start_date, end=end_date):
+    #         # Extract year and week number
+    #         Week = date.isocalendar()[1]
+    #         year = date.year
+    #         yearWeek= 'W'+str(Week)+'-'+str(year)
+    #         weekday = date.isoweekday()
+    #         #print(date,weekday)
 
-            # Check if a row exists for this employee and yearWeek
-            existing_row = df_out[(df_out['NAME'] == name) & (df_out['YEAR_WEEK'] == yearWeek)]
+    #         # Check if a row exists for this employee and yearWeek
+    #         existing_row = df_out[(df_out['NAME'] == name) & (df_out['YEAR_WEEK'] == yearWeek)]
 
-            # If row exists, add 1 to days, otherwise create a new row
-            if existing_row.empty:
-                if weekday <=5:
-                    df_out = df_out.append({'NAME': name, 'YEAR_WEEK': yearWeek, 'days': 1}, ignore_index=True)
-                else:
-                    df_out = df_out.append({'NAME': name, 'YEAR_WEEK': yearWeek, 'days': 0}, ignore_index=True)
-                    #print('weekend')
-            else:
-                if weekday<=5:
-                    df_out.loc[existing_row.index, 'days'] += 1
-                else:
-                    df_out.loc[existing_row.index, 'days'] += 0
-                    #print('weekend')
+    #         # If row exists, add 1 to days, otherwise create a new row
+    #         if existing_row.empty:
+    #             if weekday <=5:
+    #                 df_out = df_out.append({'NAME': name, 'YEAR_WEEK': yearWeek, 'days': 1}, ignore_index=True)
+    #             else:
+    #                 df_out = df_out.append({'NAME': name, 'YEAR_WEEK': yearWeek, 'days': 0}, ignore_index=True)
+    #                 #print('weekend')
+    #         else:
+    #             if weekday<=5:
+    #                 df_out.loc[existing_row.index, 'days'] += 1
+    #             else:
+    #                 df_out.loc[existing_row.index, 'days'] += 0
+    #                 #print('weekend')
                 
 
     return df_out
